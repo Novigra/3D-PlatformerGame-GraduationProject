@@ -2,6 +2,12 @@
 
 
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "Components/InputComponent.h"
 
 // Sets default values
 AMotherRabbit::AMotherRabbit()
@@ -9,6 +15,12 @@ AMotherRabbit::AMotherRabbit()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(GetRootComponent());
+	CameraBoom->TargetArmLength = 10.0f;
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 }
 
 // Called when the game starts or when spawned
@@ -16,7 +28,14 @@ void AMotherRabbit::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UE_LOG(LogTemp, Warning, TEXT("Start Player"));
+	
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(RabbitMappingContext, 0);
+		}
+	}
 }
 
 // Called every frame
@@ -24,6 +43,7 @@ void AMotherRabbit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 }
 
 // Called to bind functionality to input
@@ -31,5 +51,40 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// Use CastChecked so when casting fails, crash the game
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked< UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Movement);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Look);
+	}
 }
 
+void AMotherRabbit::Movement(const FInputActionValue& Value)
+{
+	const FVector2D MovementValue = Value.Get<FVector2D>();
+
+	if (Controller && (MovementValue != FVector2D(0.0f)))
+	{
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
+
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(ForwardDirection, MovementValue.Y);
+		
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		AddMovementInput(RightDirection, MovementValue.X);		
+	}
+}
+
+void AMotherRabbit::Look(const FInputActionValue& Value)
+{
+	const FVector2D LookVector = Value.Get<FVector2D>();
+
+	// TODO: Isolate Camera from root or CapsuleComponent
+	if (Controller)
+	{
+		AddControllerYawInput(LookVector.X);
+		AddControllerPitchInput(LookVector.Y);
+	}
+}
