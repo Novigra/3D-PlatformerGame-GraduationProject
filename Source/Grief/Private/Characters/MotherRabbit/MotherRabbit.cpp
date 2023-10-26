@@ -15,20 +15,43 @@ AMotherRabbit::AMotherRabbit()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	PlaceholderStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlaceholderStaticMesh"));
+	PlaceholderStaticMesh->SetupAttachment(GetRootComponent());
+
+	// Camera Properties
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
-	CameraBoom->TargetArmLength = 10.0f;
+	CameraBoom->TargetArmLength = 200.0f;
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the spring arm
+
+	CameraBoom->bEnableCameraLag = true;
+	CameraBoom->bEnableCameraRotationLag = false;
+	CameraBoom->CameraLagSpeed = 10.0f;
+	CameraBoom->CameraLagMaxDistance = 0.0f;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	Camera->bUsePawnControlRotation = false; // Don't need the camera to rotate
+
+	// Fixed the rotation
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+
+#ifdef UE_BUILD_DEBUG
+
+	CameraBoom->bDrawDebugLagMarkers = true;
+
+#endif // UE_BUILD_DEBUG
+
+
 }
 
 // Called when the game starts or when spawned
 void AMotherRabbit::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -43,7 +66,6 @@ void AMotherRabbit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
 }
 
 // Called to bind functionality to input
@@ -81,7 +103,6 @@ void AMotherRabbit::Look(const FInputActionValue& Value)
 {
 	const FVector2D LookVector = Value.Get<FVector2D>();
 
-	// TODO: Isolate Camera from root or CapsuleComponent
 	if (Controller)
 	{
 		AddControllerYawInput(LookVector.X);
