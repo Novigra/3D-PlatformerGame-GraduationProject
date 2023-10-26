@@ -13,5 +13,8 @@ UCLASS()
 class GRIEF_API APlayerGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	APlayerGameModeBase();
 	
 };

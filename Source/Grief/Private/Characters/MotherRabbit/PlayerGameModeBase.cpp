@@ -3,3 +3,7 @@
 
 #include "Characters/MotherRabbit/PlayerGameModeBase.h"
 
+APlayerGameModeBase::APlayerGameModeBase()
+{
+
+}
