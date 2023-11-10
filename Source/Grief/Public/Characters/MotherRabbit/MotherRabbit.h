@@ -24,6 +24,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Placeholder)
 	class UStaticMeshComponent* PlaceholderStaticMesh;
 
+
 	// Camera Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* Camera;
@@ -45,7 +46,28 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* LookAction;
 
+	// Gameplay Functionalities
+
+	// Determine how far to launch the character
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float LaunchCharacterVelocity;
+
+	// Determine how many time you can launch the character
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	int32 JumpCounter;
+
+	// Used to determine how long can the character stay in the air after the launch (Second Jump)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float ApexJumpTimerDelay;
+
+
 	void Movement(const FInputActionValue& Value);
+
+	void Jumping(const FInputActionValue& Value);
+	virtual void NotifyJumpApex() override;
+	virtual void Landed(const FHitResult& Hit) override;
+	void ChangeJumpGravity();
+
 	void Look(const FInputActionValue& Value);
 
 public:	

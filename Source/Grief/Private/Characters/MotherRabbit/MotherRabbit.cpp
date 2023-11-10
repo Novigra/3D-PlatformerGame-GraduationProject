@@ -4,6 +4,7 @@
 #include "Characters/MotherRabbit/MotherRabbit.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -38,6 +39,13 @@ AMotherRabbit::AMotherRabbit()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 
+	// Character Movement Setup
+	GetCharacterMovement()->bNotifyApex = false;
+	GetCharacterMovement()->AirControl = 1.0f;
+	LaunchCharacterVelocity = 800.0f;
+	JumpCounter = 1;
+	ApexJumpTimerDelay = 0.25f;
+
 #ifdef UE_BUILD_DEBUG
 
 	CameraBoom->bDrawDebugLagMarkers = true;
@@ -65,7 +73,7 @@ void AMotherRabbit::BeginPlay()
 void AMotherRabbit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 
 // Called to bind functionality to input
@@ -77,7 +85,7 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked< UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Movement);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMotherRabbit::Jumping);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Look);
 	}
 }
@@ -97,6 +105,50 @@ void AMotherRabbit::Movement(const FInputActionValue& Value)
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(RightDirection, MovementValue.X);		
 	}
+}
+
+void AMotherRabbit::Jumping(const FInputActionValue& Value)
+{
+	const bool bJumpValue = Value.Get<bool>();
+
+	if (bJumpValue == true)
+	{
+		ACharacter::Jump();
+		GetCharacterMovement()->GravityScale = 1.0f;
+		GetCharacterMovement()->bNotifyApex = true;
+
+		if ((GetCharacterMovement()->IsFalling() == true) && (JumpCounter > 0))
+		{
+			LaunchCharacter(FVector(FVector2D(0.0f), LaunchCharacterVelocity), false, false);
+			JumpCounter--;
+			
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AMotherRabbit::ChangeJumpGravity, 0.1f, false, ApexJumpTimerDelay);
+		}
+	}
+}
+
+void AMotherRabbit::NotifyJumpApex()
+{
+	Super::NotifyJumpApex();
+
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Reached my apex"));
+	if (GetCharacterMovement()->bNotifyApex == false)
+	{
+		GetCharacterMovement()->GravityScale = 2.0f;
+	}
+}
+
+void AMotherRabbit::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	JumpCounter = 1;
+}
+
+void AMotherRabbit::ChangeJumpGravity()
+{
+	GetCharacterMovement()->GravityScale = 2.0f;
 }
 
 void AMotherRabbit::Look(const FInputActionValue& Value)
