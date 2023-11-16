@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Placeholder)
 	class UStaticMeshComponent* PlaceholderStaticMesh;
 
+	UPROPERTY()
+	UWorld* CurrentLevel;
+
 
 	// Camera Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -60,6 +63,46 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float ApexJumpTimerDelay;
 
+	// Right and left rotation for the ray cast to define when the player can start running on the wall
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float VectorRotation;
+
+	// Determine the end point of the ray cast, basically the length of the vector
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float VectorEndPoint;
+
+	// Rotation on the z component that allows the player to start wall running
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float MaxWallTilt;
+
+	// How fast can the player wall-running
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float WallRunSpeed;
+
+	// Determine the gravity force that will affect the player during wall running
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float WallRunGravityTarget;
+
+	// Determine how fast the gravity scale will change
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float InterpSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float WallJumpForce;
+
+	FVector Force;
+
+	// Rotation of the wall jump force
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float WallJumpRotation;
+
+	// Initial Velocity when starting running on the wall (Velocity Z component)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	float InitialWallRunVelocity;
+
+	bool bIsWallRunning;
+	bool bStopWallRunning;
+	bool bFirstContact;
 
 	void Movement(const FInputActionValue& Value);
 
@@ -67,6 +110,8 @@ protected:
 	virtual void NotifyJumpApex() override;
 	virtual void Landed(const FHitResult& Hit) override;
 	void ChangeJumpGravity();
+
+	void WallRunning(float DeltaTime);
 
 	void Look(const FInputActionValue& Value);
 
