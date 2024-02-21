@@ -37,17 +37,29 @@ protected:
 
 
 	// Player Input
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	class UInputMappingContext* RabbitMappingContext;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
+	class UInputMappingContext* MovementMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
+	class UInputMappingContext* UserInterfaceMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 	class UInputAction* MovementAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 	class UInputAction* JumpAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
+	class UInputAction* EnterAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
+	class UInputAction* BackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
+	class UInputAction* NavigationAction;
 
 	// Gameplay Functionalities
 
@@ -104,16 +116,29 @@ protected:
 	bool bStopWallRunning;
 	bool bFirstContact;
 
-	void Movement(const FInputActionValue& Value);
+	/*
+	* Player Input
+	*/
 
+	// Input Action - UI
+	void EnterInput(const FInputActionValue& Value);
+	void BackInput(const FInputActionValue& Value);
+	void Navigation(const FInputActionValue& Value);
+
+	// Input Action - Movement
+	void Movement(const FInputActionValue& Value);
 	void Jumping(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+
+	/*
+	* Game Logic
+	*/
+
 	virtual void NotifyJumpApex() override;
 	virtual void Landed(const FHitResult& Hit) override;
 	void ChangeJumpGravity();
 
 	void WallRunning(float DeltaTime);
-
-	void Look(const FInputActionValue& Value);
 
 public:	
 	// Called every frame

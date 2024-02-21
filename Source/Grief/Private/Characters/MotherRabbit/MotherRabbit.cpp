@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
+
 // Sets default values
 AMotherRabbit::AMotherRabbit()
 {
@@ -79,7 +80,8 @@ void AMotherRabbit::BeginPlay()
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
-			Subsystem->AddMappingContext(RabbitMappingContext, 0);
+			// Note: Player may or may not exist in the game, so managing controls will be moved to a player controller class later on!
+			Subsystem->AddMappingContext(MovementMappingContext, 0);
 		}
 	}
 
@@ -102,9 +104,43 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// Use CastChecked so when casting fails, crash the game
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked< UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		EnhancedInputComponent->BindAction(EnterAction, ETriggerEvent::Started, this, &AMotherRabbit::EnterInput);
+		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Started, this, &AMotherRabbit::BackInput);
+		EnhancedInputComponent->BindAction(NavigationAction, ETriggerEvent::Started, this, &AMotherRabbit::Navigation);
+
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Movement);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMotherRabbit::Jumping);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Look);
+	}
+}
+
+void AMotherRabbit::EnterInput(const FInputActionValue& Value)
+{
+	const bool bActionValue = Value.Get<bool>();
+
+	if (Controller && bActionValue)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("You pressed Enter!!!"));
+	}
+}
+
+void AMotherRabbit::BackInput(const FInputActionValue& Value)
+{
+	const bool bActionValue = Value.Get<bool>();
+
+	if (Controller && bActionValue)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("You pressed Back!!!"));
+	}
+}
+
+void AMotherRabbit::Navigation(const FInputActionValue& Value)
+{
+	const float bActionValue = Value.Get<float>();
+
+	if (Controller && (bActionValue != 0.0f))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("You pressed Navigation!!!"));
 	}
 }
 
