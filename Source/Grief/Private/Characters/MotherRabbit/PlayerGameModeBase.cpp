@@ -7,3 +7,10 @@ APlayerGameModeBase::APlayerGameModeBase()
 {
 
 }
+
+void APlayerGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CurrentGameModeBase = this;
+}

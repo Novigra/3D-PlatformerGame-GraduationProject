@@ -6,9 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "PlayerGameModeBase.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class GRIEF_API APlayerGameModeBase : public AGameModeBase
 {
@@ -16,5 +13,13 @@ class GRIEF_API APlayerGameModeBase : public AGameModeBase
 
 public:
 	APlayerGameModeBase();
-	
+
+	UPROPERTY()
+	class APlayerGameModeBase* CurrentGameModeBase;
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	FORCEINLINE APlayerGameModeBase* GetCurrentGameMode() { return CurrentGameModeBase; }
 };

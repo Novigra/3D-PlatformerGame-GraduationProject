@@ -7,6 +7,9 @@
 #include "InputActionValue.h"
 #include "MotherRabbit.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPressingNavigationAction, float, ActionValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingEnterAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingBackAction);
 
 UCLASS()
 class GRIEF_API AMotherRabbit : public ACharacter
@@ -17,26 +20,10 @@ public:
 	// Sets default values for this character's properties
 	AMotherRabbit();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Placeholder)
-	class UStaticMeshComponent* PlaceholderStaticMesh;
-
-	UPROPERTY()
-	UWorld* CurrentLevel;
-
-
-	// Camera Components
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	class UCameraComponent* Camera;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	class USpringArmComponent* CameraBoom;
-
-
 	// Player Input
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Input|InputLocalPlayerSubsystem")
+	class UEnhancedInputLocalPlayerSubsystem* Subsystem;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
 	class UInputMappingContext* MovementMappingContext;
 
@@ -60,6 +47,33 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
 	class UInputAction* NavigationAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPressingNavigationAction OnPressingNavigationAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPressingEnterAction OnPressingEnterAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPressingBackAction OnPressingBackAction;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Placeholder)
+	class UStaticMeshComponent* PlaceholderStaticMesh;
+
+	UPROPERTY()
+	UWorld* CurrentLevel;
+
+
+	// Camera Components
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	class UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	class USpringArmComponent* CameraBoom;
 
 	// Gameplay Functionalities
 
@@ -146,4 +160,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void SetPlayerMappingContext(class UInputMappingContext* InputMappingContext, int32 Priority);
+	void RemovePlayerMappingContext(class UInputMappingContext* InputMappingContext);
+	void RemovePlayerAllMappingContexts();
 };

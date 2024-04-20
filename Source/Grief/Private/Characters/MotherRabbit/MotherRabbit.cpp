@@ -78,10 +78,11 @@ void AMotherRabbit::BeginPlay()
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem)
 		{
 			// Note: Player may or may not exist in the game, so managing controls will be moved to a player controller class later on!
-			Subsystem->AddMappingContext(MovementMappingContext, 0);
+			Subsystem->AddMappingContext(UserInterfaceMappingContext, 0);
 		}
 	}
 
@@ -121,6 +122,7 @@ void AMotherRabbit::EnterInput(const FInputActionValue& Value)
 	if (Controller && bActionValue)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("You pressed Enter!!!"));
+		OnPressingEnterAction.Broadcast();
 	}
 }
 
@@ -131,16 +133,18 @@ void AMotherRabbit::BackInput(const FInputActionValue& Value)
 	if (Controller && bActionValue)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("You pressed Back!!!"));
+		OnPressingBackAction.Broadcast();
 	}
 }
 
 void AMotherRabbit::Navigation(const FInputActionValue& Value)
 {
-	const float bActionValue = Value.Get<float>();
+	const float ActionValue = Value.Get<float>();
 
-	if (Controller && (bActionValue != 0.0f))
+	if (Controller && (ActionValue != 0.0f))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("You pressed Navigation!!!"));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("Current Navigation (Action Value) = %f"), ActionValue));
+		OnPressingNavigationAction.Broadcast(ActionValue);
 	}
 }
 
@@ -305,4 +309,19 @@ void AMotherRabbit::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookVector.X);
 		AddControllerPitchInput(LookVector.Y);
 	}
+}
+
+void AMotherRabbit::SetPlayerMappingContext(class UInputMappingContext* InputMappingContext, int32 Priority)
+{
+	Subsystem->AddMappingContext(InputMappingContext, Priority);
+}
+
+void AMotherRabbit::RemovePlayerMappingContext(class UInputMappingContext* InputMappingContext)
+{
+	Subsystem->RemoveMappingContext(InputMappingContext);
+}
+
+void AMotherRabbit::RemovePlayerAllMappingContexts()
+{
+	Subsystem->ClearAllMappings();
 }
