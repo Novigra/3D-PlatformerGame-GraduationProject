@@ -4,47 +4,44 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "PauseMenuUI.generated.h"
+#include "MapsMenuUI.generated.h"
 
 DECLARE_DELEGATE(FButtonAction);
 
 UCLASS()
-class GRIEF_API UPauseMenuUI : public UUserWidget
+class GRIEF_API UMapsMenuUI : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
-	UPauseMenuUI(const FObjectInitializer& ObjectInitializer);
+	UMapsMenuUI(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* BtnContinue;
+	class UButton* BtnOne;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UButton* BtnTwo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* BtnLoad;
+	class UButton* BtnThree;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* BtnMaps;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* BtnTools;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* BtnSettings;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* BtnReturn;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UButton* BtnQuit;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UOverlay* Diamond_Overlay;
+	class UButton* BtnFour;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UButton*> BtnArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UWidgetAnimation*> BtnAnimationArr;
+	TArray<class UImage*> IMGArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FText> TxtArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FSlateColor HoveredColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FSlateColor NormalColor;
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 BtnArrIndex;
@@ -52,7 +49,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	int32 LastVisitedIndex;
 
-	UPROPERTY(EditAnywhere ,BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float TransformLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -80,51 +77,35 @@ protected:
 	void Interact();
 
 	UFUNCTION()
-	void Continue();
+	void MapOne();
 
 	UFUNCTION()
-	void Load();
+	void MapTwo();
 
 	UFUNCTION()
-	void Maps();
+	void MapThree();
 
 	UFUNCTION()
-	void Tools();
-
-	UFUNCTION()
-	void Settings();
-
-	UFUNCTION()
-	void Return();
-
-	UFUNCTION()
-	void Quit();
+	void MapFour();
 
 	UFUNCTION()
 	void NavigateToNextButton(float ActionValue);
 
 	UFUNCTION()
-	void OnHoveredContinueButton();
+	void OnHoveredMapOneButton();
 
 	UFUNCTION()
-	void OnHoveredLoadButton();
+	void OnHoveredMapTwoButton();
 
 	UFUNCTION()
-	void OnHoveredMapsButton();
+	void OnHoveredMapThreeButton();
 
 	UFUNCTION()
-	void OnHoveredToolsButton();
-
-	UFUNCTION()
-	void OnHoveredSettingsButton();
-
-	UFUNCTION()
-	void OnHoveredReturnButton();
-
-	UFUNCTION()
-	void OnHoveredQuitButton();
+	void OnHoveredMapFourButton();
 
 	void ReverseButtonAnimation(int32 Index);
 
 	void ButtonIndicator();
+
+	void InterpColor();
 };

@@ -24,14 +24,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HUD)
 	class AMotherRabbit* MyPlayer;
 
+	UFUNCTION()
+	void CloseHUDOverlay();
+
 private:
 	void SetHUDStartup();
 
 	UFUNCTION()
 	void SwitchHUDOverlay();
-
-	UFUNCTION()
-	void CloseHUDOverlay();
 
 protected:
 	virtual void BeginPlay() override;

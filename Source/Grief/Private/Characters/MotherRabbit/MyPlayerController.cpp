@@ -31,6 +31,7 @@ void AMyPlayerController::SetHUDStartup()
 		SetInputMode(FInputModeGameAndUI());
 		SetShowMouseCursor(true);
 	}
+	MyPlayer->OnPressingBackAction.AddDynamic(this, &AMyPlayerController::CloseHUDOverlay);
 }
 
 void AMyPlayerController::SwitchHUDOverlay()
@@ -47,4 +48,6 @@ void AMyPlayerController::CloseHUDOverlay()
 
 	MyPlayer->RemovePlayerAllMappingContexts();
 	MyPlayer->SetPlayerMappingContext(MyPlayer->MovementMappingContext, 0);
+	SetInputMode(FInputModeGameOnly());
+	SetShowMouseCursor(false);
 }

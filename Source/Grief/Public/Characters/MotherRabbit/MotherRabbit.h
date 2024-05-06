@@ -48,6 +48,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
 	class UInputAction* NavigationAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
+	class UInputAction* PauseAction;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingNavigationAction OnPressingNavigationAction;
 
@@ -56,6 +59,42 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingBackAction OnPressingBackAction;
+
+	/*
+	* BookOpenning (UI)
+	*/
+
+	// Book that you need to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	TSubclassOf<class AFlyingBook> FlyingBook;
+
+	// Rabbit texture used in The book (It is an actor that has 3d model in it and we need to spawn it)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	TSubclassOf<class AActor> RabbitHeadTex;
+
+	// Current location of the "CameraFront"
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	FVector CameraFrontLocation;
+
+	// Current camera location
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	FVector CameraLocation;
+
+	// Indicate how far the point is from the Camera(Front)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	float CameraFront;
+
+	// Indicate how far the point is from the Camera(Right)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	float CameraRight;
+
+	// Stop the movement of the player and camera
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	bool bStopMovement;
+
+	// Check if the book got destroyed (Despawned), so We can open the Pause Menu Interface
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
+	bool bBookDestroyed;
 
 protected:
 	// Called when the game starts or when spawned
@@ -138,6 +177,7 @@ protected:
 	void EnterInput(const FInputActionValue& Value);
 	void BackInput(const FInputActionValue& Value);
 	void Navigation(const FInputActionValue& Value);
+	void PauseGame(const FInputActionValue& Value);
 
 	// Input Action - Movement
 	void Movement(const FInputActionValue& Value);

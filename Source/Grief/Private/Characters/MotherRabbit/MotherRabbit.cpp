@@ -11,6 +11,8 @@
 #include "Components/InputComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "UserInterface/FlyingBook.h"
+#include "Debug/Debug.h"
 
 
 // Sets default values
@@ -62,6 +64,14 @@ AMotherRabbit::AMotherRabbit()
 	bStopWallRunning = false;
 	bFirstContact = true;
 
+	// Book - (UI)
+	CameraLocation = FVector(0.0f);
+	CameraFrontLocation = FVector(0.0f);
+	CameraFront = 70.0f;
+	CameraRight = 140.0f;
+	bStopMovement = false;
+	bBookDestroyed = false;
+
 #ifdef UE_BUILD_DEBUG
 
 	CameraBoom->bDrawDebugLagMarkers = true;
@@ -108,6 +118,7 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(EnterAction, ETriggerEvent::Started, this, &AMotherRabbit::EnterInput);
 		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Started, this, &AMotherRabbit::BackInput);
 		EnhancedInputComponent->BindAction(NavigationAction, ETriggerEvent::Started, this, &AMotherRabbit::Navigation);
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &AMotherRabbit::PauseGame);
 
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Movement);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMotherRabbit::Jumping);
@@ -148,11 +159,38 @@ void AMotherRabbit::Navigation(const FInputActionValue& Value)
 	}
 }
 
+void AMotherRabbit::PauseGame(const FInputActionValue& Value)
+{
+	const bool bActionValue = Value.Get<bool>();
+
+	if (Controller && bActionValue)
+	{
+		bStopMovement = true;
+
+		if (APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+		{
+			APlayerCameraManager* PlayerCamera = PlayerController->PlayerCameraManager;
+
+			CameraFrontLocation = PlayerCamera->GetCameraLocation() + (PlayerCamera->GetActorForwardVector() * CameraFront);
+			CameraLocation = PlayerCamera->GetCameraLocation();
+
+			FVector BookSpawnLocation = CameraFrontLocation + (PlayerCamera->GetActorRightVector() * CameraRight);
+			FRotator BookSpawnRotation = PlayerCamera->GetCameraRotation();
+
+			AFlyingBook* Book = CurrentLevel->SpawnActor<AFlyingBook>(FlyingBook, BookSpawnLocation, BookSpawnRotation);
+			AActor* RabbitHead = CurrentLevel->SpawnActor<AActor>(RabbitHeadTex, FVector(0.0f, 0.0f, -10000.0f), FRotator(0.0f));
+
+			RemovePlayerMappingContext(MovementMappingContext);
+			SetPlayerMappingContext(UserInterfaceMappingContext, 0);
+		}	
+	}
+}
+
 void AMotherRabbit::Movement(const FInputActionValue& Value)
 {
 	const FVector2D MovementValue = Value.Get<FVector2D>();
 
-	if (Controller && (MovementValue != FVector2D(0.0f)))
+	if (Controller && !bStopMovement && (MovementValue != FVector2D(0.0f)))
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
@@ -169,7 +207,7 @@ void AMotherRabbit::Jumping(const FInputActionValue& Value)
 {
 	const bool bJumpValue = Value.Get<bool>();
 
-	if (bJumpValue == true)
+	if (bJumpValue == true && !bStopMovement)
 	{
 		ACharacter::Jump();
 		GetCharacterMovement()->GravityScale = 1.0f;
@@ -304,7 +342,7 @@ void AMotherRabbit::Look(const FInputActionValue& Value)
 {
 	const FVector2D LookVector = Value.Get<FVector2D>();
 
-	if (Controller)
+	if (Controller && !bStopMovement)
 	{
 		AddControllerYawInput(LookVector.X);
 		AddControllerPitchInput(LookVector.Y);
