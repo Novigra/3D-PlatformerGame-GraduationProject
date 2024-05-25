@@ -4,6 +4,7 @@
 #include "UserInterface/PauseMenuUI.h"
 #include "Components/Button.h"
 #include "Components/Overlay.h"
+#include "Components/HorizontalBox.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
 #include "Characters/MotherRabbit/MyPlayerController.h"
@@ -19,6 +20,8 @@ UPauseMenuUI::UPauseMenuUI(const FObjectInitializer& ObjectInitializer) : Super(
 	BtnReturn	= nullptr;
 	BtnQuit		= nullptr;
 	Diamond_Overlay = nullptr;
+	ChildUI_HorizontalBox = nullptr;
+	CurrentChildUI = nullptr;
 
 	BtnArrIndex = 0;
 	LastVisitedIndex = 0;
@@ -27,6 +30,9 @@ UPauseMenuUI::UPauseMenuUI(const FObjectInitializer& ObjectInitializer) : Super(
 	InterpSpeed = 20.0f;
 	bCanTransform = false;
 	bLastKeyboardInput = true;
+	bChildHudOpen = false;
+
+	PlayerController = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 }
 
 void UPauseMenuUI::NativeConstruct()
@@ -39,6 +45,7 @@ void UPauseMenuUI::NativeConstruct()
 
 		Player->OnPressingNavigationAction.AddDynamic(this, &UPauseMenuUI::NavigateToNextButton);
 		Player->OnPressingEnterAction.AddDynamic(this, &UPauseMenuUI::Interact);
+		Player->OnPressingBackAction.AddDynamic(this, &UPauseMenuUI::CloseChildUI);
 	}
 
 	SetupButtons();
@@ -53,7 +60,7 @@ void UPauseMenuUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		FVector2D CurrentLocation = FMath::Vector2DInterpTo(Diamond_Overlay->GetRenderTransform().Translation, TargetLocation.Translation, InDeltaTime, InterpSpeed);
 		Diamond_Overlay->SetRenderTranslation(CurrentLocation);
 
-		PrintScreen(10.0f, FColor::Red, "Overlay Current Location: X = %f  Y = %f", CurrentLocation.X, CurrentLocation.Y);
+		//PrintScreen(10.0f, FColor::Red, "Overlay Current Location: X = %f  Y = %f", CurrentLocation.X, CurrentLocation.Y);
 	}
 	else if (Diamond_Overlay->GetRenderTransform().Translation == TargetLocation.Translation)
 	{
@@ -111,11 +118,9 @@ void UPauseMenuUI::Interact()
 void UPauseMenuUI::Continue()
 {
 	PrintScreen(15.0f, FColor::Green, "Continue Function Is Working!!!");
-
-	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
-	{
+	
+	if(PlayerController)
 		PlayerController->CloseHUDOverlay();
-	}
 }
 
 void UPauseMenuUI::Load()
@@ -126,16 +131,22 @@ void UPauseMenuUI::Load()
 void UPauseMenuUI::Maps()
 {
 	PrintScreen(15.0f, FColor::Green, "Maps Function Is Working!!!");
+
+	OpenChildUI(MapMenuUI);
 }
 
 void UPauseMenuUI::Tools()
 {
 	PrintScreen(15.0f, FColor::Green, "Tools Function Is Working!!!");
+
+	OpenChildUI(ToolsMenuUI);
 }
 
 void UPauseMenuUI::Settings()
 {
 	PrintScreen(15.0f, FColor::Green, "Settings Function Is Working!!!");
+
+	OpenChildUI(SettingsMenuUI);
 }
 
 void UPauseMenuUI::Return()
@@ -148,10 +159,23 @@ void UPauseMenuUI::Quit()
 	PrintScreen(15.0f, FColor::Green, "Quit Function Is Working!!!");
 }
 
+void UPauseMenuUI::OpenChildUI(TSubclassOf<class UUserWidget> Widget)
+{
+	if (PlayerController)
+	{
+		CurrentChildUI = CreateWidget<UUserWidget>(PlayerController, Widget);
+		ChildUI_HorizontalBox->AddChild(CurrentChildUI);
+
+		bChildHudOpen = true;
+
+		PlayerController->NumberOfOpenChildren++;
+	}
+}
+
 // TODO: Create a UObject for the navigation, instead of writing the same code for every widget (Keep in mind can't hard code index and you need to use the length of an array)
 void UPauseMenuUI::NavigateToNextButton(float ActionValue)
 {
-	if (BtnArr.IsValidIndex(BtnArrIndex))
+	if (BtnArr.IsValidIndex(BtnArrIndex) && !(bChildHudOpen))
 	{
 		check(BtnArr[BtnArrIndex] != nullptr && BtnAnimationArr[BtnArrIndex] != nullptr);
 
@@ -251,6 +275,18 @@ void UPauseMenuUI::OnHoveredReturnButton()
 void UPauseMenuUI::OnHoveredQuitButton()
 {
 	ReverseButtonAnimation(6);
+}
+
+void UPauseMenuUI::CloseChildUI()
+{
+	if (CurrentChildUI && (PlayerController->NumberOfOpenChildren < 2))
+	{
+		ChildUI_HorizontalBox->RemoveChild(CurrentChildUI);
+		CurrentChildUI = nullptr;
+		PlayerController->NumberOfOpenChildren--;
+
+		bChildHudOpen = false;
+	}
 }
 
 void UPauseMenuUI::ReverseButtonAnimation(int32 Index)

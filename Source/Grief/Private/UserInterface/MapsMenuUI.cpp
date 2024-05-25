@@ -4,6 +4,7 @@
 #include "UserInterface/MapsMenuUI.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Components/Overlay.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
@@ -27,6 +28,9 @@ UMapsMenuUI::UMapsMenuUI(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	InterpSpeed = 20.0f;
 	bCanTransform = false;
 	bLastKeyboardInput = true;
+	bChildHudOpen = false;
+
+	PlayerController = Cast<AMyPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 }
 
 void UMapsMenuUI::NativeConstruct()
@@ -39,6 +43,7 @@ void UMapsMenuUI::NativeConstruct()
 
 		Player->OnPressingNavigationAction.AddDynamic(this, &UMapsMenuUI::NavigateToNextButton);
 		Player->OnPressingEnterAction.AddDynamic(this, &UMapsMenuUI::Interact);
+		Player->OnPressingBackAction.AddDynamic(this, &UMapsMenuUI::CloseChildUI);
 	}
 
 	SetupButtons();
@@ -90,29 +95,55 @@ void UMapsMenuUI::Interact()
 
 void UMapsMenuUI::MapOne()
 {
-	IMGArr[0]->SetBrushTintColor(NormalColor);
-	PrintScreen(5.0f, FColor::Red, "Map One Openning...");
+	OpenMap(MapOneUI);
 }
 
 void UMapsMenuUI::MapTwo()
 {
-
+	OpenMap(MapTwoUI);
 }
 
 void UMapsMenuUI::MapThree()
 {
-
+	OpenMap(MapThreeUI);
 }
 
 void UMapsMenuUI::MapFour()
 {
+	OpenMap(MapFourUI);
+}
 
+void UMapsMenuUI::OpenMap(TSubclassOf<class UUserWidget> Map)
+{
+	if (PlayerController && !(bChildHudOpen))
+	{
+		CurrentMapUI = CreateWidget<UUserWidget>(PlayerController, Map);
+		CurrentMapUI->AddToViewport(1);
+
+		PrintScreen(5.0f, FColor::Red, "Map = %s", *CurrentMapUI->GetName());
+
+		bChildHudOpen = true;
+
+		PlayerController->NumberOfOpenChildren++;
+	}
+}
+
+void UMapsMenuUI::CloseChildUI()
+{
+	if (CurrentMapUI)
+	{
+		CurrentMapUI->RemoveFromViewport();
+		CurrentMapUI = nullptr;
+		PlayerController->NumberOfOpenChildren--;
+
+		bChildHudOpen = false;
+	}
 }
 
 // TODO: Create a UObject for the navigation, instead of writing the same code for every widget (Keep in mind can't hard code index and you need to use the length of an array)
 void UMapsMenuUI::NavigateToNextButton(float ActionValue)
 {
-	if (BtnArr.IsValidIndex(BtnArrIndex))
+	if (BtnArr.IsValidIndex(BtnArrIndex) && !(bChildHudOpen))
 	{
 		check(BtnArr[BtnArrIndex] != nullptr);
 
@@ -158,6 +189,7 @@ void UMapsMenuUI::NavigateToNextButton(float ActionValue)
 		}
 
 		ButtonIndicator();
+		InterpAnim = 0.0f;
 	}
 }
 

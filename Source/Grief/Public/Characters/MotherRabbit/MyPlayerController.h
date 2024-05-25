@@ -15,6 +15,8 @@ class GRIEF_API AMyPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	AMyPlayerController();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
 	TSubclassOf<class UUserWidget> StartupHUD;
 
@@ -23,6 +25,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HUD)
 	class AMotherRabbit* MyPlayer;
+
+	// Calculate how many number of (Children) widgets are open
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	int32 NumberOfOpenChildren;
 
 	UFUNCTION()
 	void CloseHUDOverlay();

@@ -35,7 +35,7 @@ public:
 	TArray<class UImage*> IMGArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FText> TxtArr;
+	TArray<class UTextBlock*> TxtArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateColor HoveredColor;
@@ -59,12 +59,36 @@ public:
 	bool bCanTransform;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float InterpAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float InterpSpeed;
 
 	TMap<int32, FButtonAction> BtnAction;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bLastKeyboardInput;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "MapsHUD")
+	bool bChildHudOpen;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "MapsHUD")
+	class UUserWidget* CurrentMapUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapsHUD")
+	TSubclassOf<class UUserWidget> MapOneUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapsHUD")
+	TSubclassOf<class UUserWidget> MapTwoUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapsHUD")
+	TSubclassOf<class UUserWidget> MapThreeUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapsHUD")
+	TSubclassOf<class UUserWidget> MapFourUI;
+
+	UPROPERTY()
+	class AMyPlayerController* PlayerController;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -87,6 +111,12 @@ protected:
 
 	UFUNCTION()
 	void MapFour();
+
+	UFUNCTION()
+	void OpenMap(TSubclassOf<class UUserWidget> Map);
+
+	UFUNCTION()
+	void CloseChildUI();
 
 	UFUNCTION()
 	void NavigateToNextButton(float ActionValue);

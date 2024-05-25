@@ -72,6 +72,11 @@ AMotherRabbit::AMotherRabbit()
 	bStopMovement = false;
 	bBookDestroyed = false;
 
+	// Inventory
+	CollectedMaps = 0;
+	CollectedKeys = 0;
+	CollectedCoins = 192;
+
 #ifdef UE_BUILD_DEBUG
 
 	CameraBoom->bDrawDebugLagMarkers = true;
@@ -116,7 +121,8 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked< UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(EnterAction, ETriggerEvent::Started, this, &AMotherRabbit::EnterInput);
-		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Started, this, &AMotherRabbit::BackInput);
+		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Canceled, this, &AMotherRabbit::BackInput);
+		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Triggered, this, &AMotherRabbit::CloseInput);
 		EnhancedInputComponent->BindAction(NavigationAction, ETriggerEvent::Started, this, &AMotherRabbit::Navigation);
 		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &AMotherRabbit::PauseGame);
 
@@ -141,10 +147,21 @@ void AMotherRabbit::BackInput(const FInputActionValue& Value)
 {
 	const bool bActionValue = Value.Get<bool>();
 
-	if (Controller && bActionValue)
+	if (Controller && !(bActionValue))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("You pressed Back!!!"));
 		OnPressingBackAction.Broadcast();
+	}
+}
+
+void AMotherRabbit::CloseInput(const FInputActionValue& Value)
+{
+	const bool bActionValue = Value.Get<bool>();
+
+	if (Controller && bActionValue)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("You pressed Close!!!"));
+		OnPressingClosingAction.Broadcast();
 	}
 }
 

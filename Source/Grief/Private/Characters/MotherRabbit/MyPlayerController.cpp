@@ -10,6 +10,10 @@
 #include "Components/InputComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+AMyPlayerController::AMyPlayerController()
+{
+	NumberOfOpenChildren = 0;
+}
 
 void AMyPlayerController::BeginPlay()
 {
@@ -21,6 +25,8 @@ void AMyPlayerController::BeginPlay()
 void AMyPlayerController::SetHUDStartup()
 {
 	MyPlayer = Cast<AMotherRabbit>(GetCharacter());
+	
+	// What menu to show at the beginning of the game (MainMenuUI)
 	if (StartupHUD)
 	{
 		CurrentHUD = CreateWidget<UUserWidget>(this, StartupHUD);
@@ -31,7 +37,9 @@ void AMyPlayerController::SetHUDStartup()
 		SetInputMode(FInputModeGameAndUI());
 		SetShowMouseCursor(true);
 	}
-	MyPlayer->OnPressingBackAction.AddDynamic(this, &AMyPlayerController::CloseHUDOverlay);
+
+	// TODO: the StartupHUD is not set, so use this for (debug only). Deal with it after fully finishing UI system :)
+	MyPlayer->OnPressingClosingAction.AddDynamic(this, &AMyPlayerController::CloseHUDOverlay);
 }
 
 void AMyPlayerController::SwitchHUDOverlay()
@@ -44,6 +52,7 @@ void AMyPlayerController::CloseHUDOverlay()
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("Closing Widget %s ..."), *CurrentHUD->GetClass()->GetName()));
 
 	CurrentHUD->RemoveFromRoot();
+	//CurrentHUD->RemoveFromParent();
 	CurrentHUD->RemoveFromViewport();
 
 	MyPlayer->RemovePlayerAllMappingContexts();

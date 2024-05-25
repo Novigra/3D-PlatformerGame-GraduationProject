@@ -10,6 +10,19 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPressingNavigationAction, float, ActionValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingEnterAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingBackAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingClosingAction);
+
+USTRUCT(BlueprintType)
+struct FPlayerItemStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemDetails")
+	FString ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemDetails")
+	bool bOwnItem;
+};
 
 UCLASS()
 class GRIEF_API AMotherRabbit : public ACharacter
@@ -60,6 +73,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingBackAction OnPressingBackAction;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnPressingClosingAction OnPressingClosingAction;
+
 	/*
 	* BookOpenning (UI)
 	*/
@@ -95,6 +111,25 @@ public:
 	// Check if the book got destroyed (Despawned), so We can open the Pause Menu Interface
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|BookMechanics(UI)")
 	bool bBookDestroyed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay|BookMechanics(UI)")
+	float ElapsedTime;
+
+	/*
+	* Player Inventory
+	*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
+	int32 CollectedMaps;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
+	int32 CollectedKeys;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
+	int32 CollectedCoins;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
+	TArray<FPlayerItemStruct> PlayerItem;
 
 protected:
 	// Called when the game starts or when spawned
@@ -176,6 +211,7 @@ protected:
 	// Input Action - UI
 	void EnterInput(const FInputActionValue& Value);
 	void BackInput(const FInputActionValue& Value);
+	void CloseInput(const FInputActionValue& Value);
 	void Navigation(const FInputActionValue& Value);
 	void PauseGame(const FInputActionValue& Value);
 
@@ -204,4 +240,7 @@ public:
 	void SetPlayerMappingContext(class UInputMappingContext* InputMappingContext, int32 Priority);
 	void RemovePlayerMappingContext(class UInputMappingContext* InputMappingContext);
 	void RemovePlayerAllMappingContexts();
+
+	FORCEINLINE void SetCollectedCoins(int32 Coins) { CollectedCoins = Coins; }
+	FORCEINLINE int32 GetCollectedCoins() { return CollectedCoins; }
 };

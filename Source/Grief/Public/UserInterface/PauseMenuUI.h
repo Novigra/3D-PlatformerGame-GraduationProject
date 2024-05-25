@@ -40,6 +40,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UOverlay* Diamond_Overlay;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UHorizontalBox* ChildUI_HorizontalBox;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UButton*> BtnArr;
 
@@ -68,6 +71,26 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bLastKeyboardInput;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	bool bChildHudOpen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenus")
+	class UUserWidget* CurrentChildUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenus")
+	TSubclassOf<class UUserWidget> MapMenuUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenus")
+	TSubclassOf<class UUserWidget> ToolsMenuUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenus")
+	TSubclassOf<class UUserWidget> SettingsMenuUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenus")
+	TSubclassOf<class UUserWidget> ReturnMenuUI;
+
+	class AMyPlayerController* PlayerController;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -101,6 +124,9 @@ protected:
 	void Quit();
 
 	UFUNCTION()
+	void OpenChildUI(TSubclassOf<class UUserWidget> Map);
+
+	UFUNCTION()
 	void NavigateToNextButton(float ActionValue);
 
 	UFUNCTION()
@@ -123,6 +149,9 @@ protected:
 
 	UFUNCTION()
 	void OnHoveredQuitButton();
+
+	UFUNCTION()
+	void CloseChildUI();
 
 	void ReverseButtonAnimation(int32 Index);
 
