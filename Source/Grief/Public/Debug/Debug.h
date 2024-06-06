@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/Engine.h"
 
-#define PrintScreen(Duration, Color, Format, ...) \
-    if (GEngine) GEngine->AddOnScreenDebugMessage(-1, Duration, FColor::Color, FString::Printf(TEXT(Format), ##__VA_ARGS__))
+#define PrintScreen(bEnable, Duration, Color, Format, ...) \
+    if (GEngine && bEnable) GEngine->AddOnScreenDebugMessage(-1, Duration, FColor::Color, FString::Printf(TEXT(Format), ##__VA_ARGS__))
 
 /**
  * 

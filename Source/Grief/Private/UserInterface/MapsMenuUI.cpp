@@ -39,7 +39,7 @@ void UMapsMenuUI::NativeConstruct()
 
 	if (AMotherRabbit* Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Got The Player!!!"));
+		PrintScreen(false, 10.0f, FColor::Blue, "Got The Player!!!");
 
 		Player->OnPressingNavigationAction.AddDynamic(this, &UMapsMenuUI::NavigateToNextButton);
 		Player->OnPressingEnterAction.AddDynamic(this, &UMapsMenuUI::Interact);
@@ -120,7 +120,7 @@ void UMapsMenuUI::OpenMap(TSubclassOf<class UUserWidget> Map)
 		CurrentMapUI = CreateWidget<UUserWidget>(PlayerController, Map);
 		CurrentMapUI->AddToViewport(1);
 
-		PrintScreen(5.0f, FColor::Red, "Map = %s", *CurrentMapUI->GetName());
+		PrintScreen(false, 5.0f, FColor::Red, "Map = %s", *CurrentMapUI->GetName());
 
 		bChildHudOpen = true;
 
@@ -218,7 +218,7 @@ void UMapsMenuUI::ReverseButtonAnimation(int32 Index)
 	LastVisitedIndex = BtnArrIndex;
 	BtnArrIndex = Index;
 	bLastKeyboardInput = false;
-	PrintScreen(15.0f, FColor::Green, "Current Active Button Index = %d", BtnArrIndex);
+	PrintScreen(false, 15.0f, FColor::Green, "Current Active Button Index = %d", BtnArrIndex);
 
 	BtnArr[BtnArrIndex]->SetKeyboardFocus();
 	ButtonIndicator();

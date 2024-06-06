@@ -25,7 +25,7 @@ void UMainMenuUI::NativeConstruct()
 
 	if (AMotherRabbit* Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Got The Player!!!"));
+		PrintScreen(false, 10.0f, FColor::Blue, "Got The Player!!!");
 
 		Player->OnPressingNavigationAction.AddDynamic(this, &UMainMenuUI::NavigateToNextButton);
 		Player->OnPressingEnterAction.AddDynamic(this, &UMainMenuUI::Interact);
@@ -75,19 +75,19 @@ void UMainMenuUI::Interact()
 
 void UMainMenuUI::NewGame()
 {
-	PrintScreen(15.0f, FColor::Green, "New Game Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "New Game Function Is Working!!!");
 
 	OnCloseAction.Broadcast();
 }
 
 void UMainMenuUI::LoadGame()
 {
-	PrintScreen(15.0f, FColor::Red, "Load Game Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Red, "Load Game Function Is Working!!!");
 }
 
 void UMainMenuUI::ExitGame()
 {
-	PrintScreen(15.0f, FColor::Yellow, "Exit Game Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Yellow, "Exit Game Function Is Working!!!");
 
 	FWindowsPlatformMisc::RequestExit(false);
 }
@@ -163,7 +163,7 @@ void UMainMenuUI::OnHoveredNewGameButton()
 
 	BtnArrIndex = 0;
 	bLastKeyboardInput = false;
-	PrintScreen(15.0f, FColor::Green, "Current Active Button Index = %d", BtnArrIndex);
+	PrintScreen(false, 15.0f, FColor::Green, "Current Active Button Index = %d", BtnArrIndex);
 
 	BtnArr[BtnArrIndex]->SetKeyboardFocus();
 	PlayAnimation(BtnAnimationArr[BtnArrIndex]);
@@ -178,7 +178,7 @@ void UMainMenuUI::OnHoveredLoadGameButton()
 
 	BtnArrIndex = 1;
 	bLastKeyboardInput = false;
-	PrintScreen(15.0f, FColor::Red, "Current Active Button Index = %d", BtnArrIndex);
+	PrintScreen(false, 15.0f, FColor::Red, "Current Active Button Index = %d", BtnArrIndex);
 
 	BtnArr[BtnArrIndex]->SetKeyboardFocus();
 	PlayAnimation(BtnAnimationArr[BtnArrIndex]);
@@ -193,7 +193,7 @@ void UMainMenuUI::OnHoveredExitGameButton()
 
 	BtnArrIndex = 2;
 	bLastKeyboardInput = false;
-	PrintScreen(15.0f, FColor::Yellow, "Current Active Button Index = %d", BtnArrIndex);
+	PrintScreen(false, 15.0f, FColor::Yellow, "Current Active Button Index = %d", BtnArrIndex);
 
 	BtnArr[BtnArrIndex]->SetKeyboardFocus();
 	PlayAnimation(BtnAnimationArr[BtnArrIndex]);

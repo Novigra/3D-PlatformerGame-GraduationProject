@@ -125,6 +125,7 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Canceled, this, &AMotherRabbit::BackInput);
 		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Triggered, this, &AMotherRabbit::CloseInput);
 		EnhancedInputComponent->BindAction(NavigationAction, ETriggerEvent::Started, this, &AMotherRabbit::Navigation);
+		EnhancedInputComponent->BindAction(PageNavAction, ETriggerEvent::Started, this, &AMotherRabbit::PageNavigation);
 		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &AMotherRabbit::PauseGame);
 
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Movement);
@@ -139,7 +140,7 @@ void AMotherRabbit::EnterInput(const FInputActionValue& Value)
 
 	if (Controller && bActionValue)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("You pressed Enter!!!"));
+		PrintScreen(false, 10.0f, FColor::Green, "You pressed Enter!!!");
 		OnPressingEnterAction.Broadcast();
 	}
 }
@@ -150,7 +151,7 @@ void AMotherRabbit::BackInput(const FInputActionValue& Value)
 
 	if (Controller && !(bActionValue))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("You pressed Back!!!"));
+		PrintScreen(false, 10.0f, FColor::Red, "You pressed Back!!!");
 		OnPressingBackAction.Broadcast();
 	}
 }
@@ -161,7 +162,7 @@ void AMotherRabbit::CloseInput(const FInputActionValue& Value)
 
 	if (Controller && bActionValue)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("You pressed Close!!!"));
+		PrintScreen(false, 10.0f, FColor::Red, "You pressed Close!!!");
 		OnPressingClosingAction.Broadcast();
 	}
 }
@@ -172,7 +173,7 @@ void AMotherRabbit::Navigation(const FInputActionValue& Value)
 
 	if (Controller && (ActionValue != 0.0f))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("Current Navigation (Action Value) = %f"), ActionValue));
+		PrintScreen(false, 10.0f, FColor::Green, "Current Page Navigation (Action Value) = %f", ActionValue);
 		OnPressingNavigationAction.Broadcast(ActionValue);
 	}
 }
@@ -201,6 +202,17 @@ void AMotherRabbit::PauseGame(const FInputActionValue& Value)
 			RemovePlayerMappingContext(MovementMappingContext);
 			SetPlayerMappingContext(UserInterfaceMappingContext, 0);
 		}	
+	}
+}
+
+void AMotherRabbit::PageNavigation(const FInputActionValue& Value)
+{
+	const float ActionValue = Value.Get<float>();
+
+	if (Controller && (ActionValue != 0.0f))
+	{
+		PrintScreen(false, 10.0f, FColor::Purple, "Current Page Navigation (Action Value) = %f", ActionValue);
+		OnPressingPageNavigationAction.Broadcast(ActionValue);
 	}
 }
 

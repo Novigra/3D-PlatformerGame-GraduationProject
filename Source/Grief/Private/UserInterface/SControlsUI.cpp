@@ -94,7 +94,12 @@ FReply USControlsUI::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEven
 	{
 		CurrentKey = InKeyEvent.GetKey();
 
-		if (ActionType == EActionType::EAT_Movement)
+		if (CurrentKey == EKeys::P)
+		{
+			CloseChildUI();
+			bEditKey = false;
+		}
+		else if (ActionType == EActionType::EAT_Movement)
 		{
 			UpdateKeyBindings(PlayerRef->MovementMappingContext, PlayerRef->MovementAction, EditKey);
 		}
@@ -118,7 +123,9 @@ void USControlsUI::MoveForwardOption()
 		bEditKey = true;
 		EditKey = CurrentControls.MovementForwardLockedKey;
 		ActionType = EActionType::EAT_Movement;
-		PrintScreen(10.0f, FColor::Red, "Please Enter A Key(MoveForward)");
+
+		OpenChildUI();
+		PrintScreen(false, 10.0f, FColor::Red, "Please Enter A Key(MoveForward)");
 	}
 }
 
@@ -129,7 +136,9 @@ void USControlsUI::MoveBackwardOption()
 		bEditKey = true;
 		EditKey = CurrentControls.MovementBackwardLockedKey;
 		ActionType = EActionType::EAT_Movement;
-		PrintScreen(10.0f, FColor::Red, "Please Enter A Key(MoveBackward)");
+
+		OpenChildUI();
+		PrintScreen(false, 10.0f, FColor::Red, "Please Enter A Key(MoveBackward)");
 	}
 }
 
@@ -140,7 +149,9 @@ void USControlsUI::MoveRightOption()
 		bEditKey = true;
 		EditKey = CurrentControls.MovementRightLockedKey;
 		ActionType = EActionType::EAT_Movement;
-		PrintScreen(10.0f, FColor::Red, "Please Enter A Key(MoveRight)");
+
+		OpenChildUI();
+		PrintScreen(false, 10.0f, FColor::Red, "Please Enter A Key(MoveRight)");
 	}
 }
 
@@ -151,7 +162,9 @@ void USControlsUI::MoveLeftOption()
 		bEditKey = true;
 		EditKey = CurrentControls.MovementLeftLockedKey;
 		ActionType = EActionType::EAT_Movement;
-		PrintScreen(10.0f, FColor::Red, "Please Enter A Key(MoveLeft)");
+
+		OpenChildUI();
+		PrintScreen(false, 10.0f, FColor::Red, "Please Enter A Key(MoveLeft)");
 	}
 }
 
@@ -162,7 +175,9 @@ void USControlsUI::JumpOption()
 		bEditKey = true;
 		EditKey = CurrentControls.JumpLockedKey;
 		ActionType = EActionType::EAT_Jump;
-		PrintScreen(10.0f, FColor::Red, "Please Enter A Key(Jump)");
+
+		OpenChildUI();
+		PrintScreen(false, 10.0f, FColor::Red, "Please Enter A Key(Jump)");
 	}
 }
 
@@ -183,7 +198,7 @@ void USControlsUI::UpdateKeyBindings(UInputMappingContext* IMC, UInputAction* In
 
 		if (OldMapping == nullptr)
 		{
-			PrintScreen(10.0f, FColor::Red, "WARNING::MAPPING DOESN'T EXIST");
+			PrintScreen(false, 10.0f, FColor::Red, "WARNING::MAPPING DOESN'T EXIST");
 			return;
 		}
 
@@ -200,7 +215,8 @@ void USControlsUI::UpdateKeyBindings(UInputMappingContext* IMC, UInputAction* In
 
 		UpdateKeyImage(CurrentKey);
 
-		PrintScreen(10.0f, FColor::Green, "Key has been edited");
+		CloseChildUI();
+		PrintScreen(false, 10.0f, FColor::Green, "Key has been edited");
 		bEditKey = false;
 	}
 }
@@ -216,7 +232,27 @@ void USControlsUI::UpdateKeyImage(FKey Key)
 	if (UpdatedKeyTexture && CurrentKeyImage[BtnArrIndex])
 	{
 		CurrentKeyImage[BtnArrIndex]->SetBrushFromTexture(UpdatedKeyTexture);
-		PrintScreen(10.0f, FColor::Red, "Image Updated :)");
+		PrintScreen(false, 10.0f, FColor::Red, "Image Updated :)");
+	}
+}
+
+void USControlsUI::OpenChildUI()
+{
+	if (PlayerController)
+	{
+		CurrentChildUI = CreateWidget<UUserWidget>(PlayerController, KeyChangeMenuUI);
+		CurrentChildUI->AddToViewport();
+
+		//PlayerController->NumberOfOpenChildren++;
+	}
+}
+
+void USControlsUI::CloseChildUI()
+{
+	if (CurrentChildUI)
+	{
+		CurrentChildUI->RemoveFromViewport();
+		CurrentChildUI = nullptr;
 	}
 }
 
@@ -242,7 +278,7 @@ void USControlsUI::NavigateToNextButton(float ActionValue)
 
 				PlayAnimation(BtnAnimationArr[BtnArrIndex]);
 
-				PrintScreen(10.0f, FColor::Red, "Ha, Down!!!");
+				PrintScreen(false, 10.0f, FColor::Red, "Ha, Down!!!");
 			}
 		}
 		else if (ActionValue > 0.0f && (BtnArrIndex != 0)) // Go to previous button (Up)
@@ -260,7 +296,7 @@ void USControlsUI::NavigateToNextButton(float ActionValue)
 
 				PlayAnimation(BtnAnimationArr[BtnArrIndex]);
 
-				PrintScreen(10.0f, FColor::Red, "Ha, Up!!!");
+				PrintScreen(false, 10.0f, FColor::Red, "Ha, Up!!!");
 			}
 		}
 		else if (ActionValue < 0.0f && (BtnArrIndex == BtnArr.Num() - 1)) // First element, so set the index to the last element
@@ -276,7 +312,7 @@ void USControlsUI::NavigateToNextButton(float ActionValue)
 			BtnArr[BtnArrIndex]->SetKeyboardFocus();
 			PlayAnimation(BtnAnimationArr[BtnArrIndex]);
 
-			PrintScreen(10.0f, FColor::Red, "Ha, Last!!!");
+			PrintScreen(false, 10.0f, FColor::Red, "Ha, Last!!!");
 		}
 		else // Last element, so set the index to the first element
 		{
@@ -291,7 +327,7 @@ void USControlsUI::NavigateToNextButton(float ActionValue)
 			BtnArr[BtnArrIndex]->SetKeyboardFocus();
 			PlayAnimation(BtnAnimationArr[BtnArrIndex]);
 
-			PrintScreen(10.0f, FColor::Red, "Ha, First!!!");
+			PrintScreen(false, 10.0f, FColor::Red, "Ha, First!!!");
 		}
 
 		UpdateScrollEvent();

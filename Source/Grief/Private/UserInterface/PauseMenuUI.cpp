@@ -41,7 +41,7 @@ void UPauseMenuUI::NativeConstruct()
 
 	if (AMotherRabbit* Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Got The Player!!!"));
+		PrintScreen(false, 10.0f, FColor::Blue, "Got The Player!!!");
 
 		Player->OnPressingNavigationAction.AddDynamic(this, &UPauseMenuUI::NavigateToNextButton);
 		Player->OnPressingEnterAction.AddDynamic(this, &UPauseMenuUI::Interact);
@@ -117,7 +117,7 @@ void UPauseMenuUI::Interact()
 
 void UPauseMenuUI::Continue()
 {
-	PrintScreen(15.0f, FColor::Green, "Continue Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "Continue Function Is Working!!!");
 	
 	if(PlayerController)
 		PlayerController->CloseHUDOverlay();
@@ -125,38 +125,41 @@ void UPauseMenuUI::Continue()
 
 void UPauseMenuUI::Load()
 {
-	PrintScreen(15.0f, FColor::Green, "Load Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "Load Function Is Working!!!");
 }
 
 void UPauseMenuUI::Maps()
 {
-	PrintScreen(15.0f, FColor::Green, "Maps Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "Maps Function Is Working!!!");
 
-	OpenChildUI(MapMenuUI);
+	if(!CurrentChildUI)
+		OpenChildUI(MapMenuUI);
 }
 
 void UPauseMenuUI::Tools()
 {
-	PrintScreen(15.0f, FColor::Green, "Tools Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "Tools Function Is Working!!!");
 
-	OpenChildUI(ToolsMenuUI);
+	if (!CurrentChildUI)
+		OpenChildUI(ToolsMenuUI);
 }
 
 void UPauseMenuUI::Settings()
 {
-	PrintScreen(15.0f, FColor::Green, "Settings Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "Settings Function Is Working!!!");
 
-	OpenChildUI(SettingsMenuUI);
+	if (!CurrentChildUI)
+		OpenChildUI(SettingsMenuUI);
 }
 
 void UPauseMenuUI::Return()
 {
-	PrintScreen(15.0f, FColor::Green, "Return Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "Return Function Is Working!!!");
 }
 
 void UPauseMenuUI::Quit()
 {
-	PrintScreen(15.0f, FColor::Green, "Quit Function Is Working!!!");
+	PrintScreen(false, 15.0f, FColor::Green, "Quit Function Is Working!!!");
 }
 
 void UPauseMenuUI::OpenChildUI(TSubclassOf<class UUserWidget> Widget)
@@ -299,7 +302,7 @@ void UPauseMenuUI::ReverseButtonAnimation(int32 Index)
 	LastVisitedIndex = BtnArrIndex;
 	BtnArrIndex = Index;
 	bLastKeyboardInput = false;
-	PrintScreen(15.0f, FColor::Green, "Current Active Button Index = %d", BtnArrIndex);
+	PrintScreen(false, 15.0f, FColor::Green, "Current Active Button Index = %d", BtnArrIndex);
 
 	BtnArr[BtnArrIndex]->SetKeyboardFocus();
 	ButtonIndicator();

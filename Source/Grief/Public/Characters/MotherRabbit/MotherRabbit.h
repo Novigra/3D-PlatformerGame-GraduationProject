@@ -8,6 +8,7 @@
 #include "MotherRabbit.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPressingNavigationAction, float, ActionValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPressingPageNavigationAction, float, ActionValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingEnterAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingBackAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingClosingAction);
@@ -64,8 +65,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
 	class UInputAction* PauseAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
+	class UInputAction* PageNavAction;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingNavigationAction OnPressingNavigationAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPressingPageNavigationAction OnPressingPageNavigationAction;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingEnterAction OnPressingEnterAction;
@@ -214,6 +221,7 @@ protected:
 	void CloseInput(const FInputActionValue& Value);
 	void Navigation(const FInputActionValue& Value);
 	void PauseGame(const FInputActionValue& Value);
+	void PageNavigation(const FInputActionValue& Value);
 
 	// Input Action - Movement
 	void Movement(const FInputActionValue& Value);

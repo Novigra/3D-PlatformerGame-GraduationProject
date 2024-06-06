@@ -92,8 +92,11 @@ public:
 
 	TMap<int32, FButtonAction> BtnAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenu")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenu")
 	class UUserWidget* CurrentChildUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenu")
+	TSubclassOf<class UUserWidget> KeyChangeMenuUI;
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -128,6 +131,12 @@ protected:
 
 	UFUNCTION()
 	void UpdateKeyImage(FKey Key);
+
+	UFUNCTION()
+	void OpenChildUI();
+
+	UFUNCTION()
+	void CloseChildUI();
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "UpdateScroll"))
 	void UpdateScrollEvent();

@@ -78,12 +78,12 @@ void UToolsMenuUI::NavigateToNextButton(float ActionValue)
 
 	if (!Item[Index].bOwnItem)
 	{
-		PrintScreen(15.0f, FColor::Blue, "Hi, Purchase from the function!!!");
+		PrintScreen(false, 15.0f, FColor::Blue, "Hi, Purchase from the function!!!");
 		NonPurchasedPlayEvent();
 	}
 	else
 	{
-		PrintScreen(15.0f, FColor::Red, "Bye, Purchase from the function!!!");
+		PrintScreen(false, 15.0f, FColor::Red, "Bye, Purchase from the function!!!");
 		NonPurchasedReverseEvent();
 	}
 
@@ -103,7 +103,7 @@ void UToolsMenuUI::Purchase()
 		PurchaseEvent();
 		UpdateUI();
 
-		PrintScreen(10.0f, FColor::Blue, "Purchased: %s", *Item[Index].ItemName);
+		PrintScreen(false, 10.0f, FColor::Blue, "Purchased: %s", *Item[Index].ItemName);
 	}
 }
 
