@@ -2,7 +2,6 @@
 
 
 #include "Characters/MotherRabbit/MotherRabbit.h"
-#include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -24,6 +23,10 @@ AMotherRabbit::AMotherRabbit()
 
 	PlaceholderStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlaceholderStaticMesh"));
 	PlaceholderStaticMesh->SetupAttachment(GetRootComponent());
+
+	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
+	InteractWidget->SetupAttachment(GetRootComponent());
+	InteractWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	// Camera Properties
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -64,6 +67,7 @@ AMotherRabbit::AMotherRabbit()
 	bIsWallRunning = false;
 	bStopWallRunning = false;
 	bFirstContact = true;
+	bDrawWallRunningDebug = false;
 
 	// Book - (UI)
 	CameraLocation = FVector(0.0f);
@@ -77,6 +81,10 @@ AMotherRabbit::AMotherRabbit()
 	CollectedMaps = 0;
 	CollectedKeys = 0;
 	CollectedCoins = 192;
+
+	// Custom gameplay related events
+	bCanStartFishingMechanics = false;
+	CurrentInteractNPC = nullptr;
 
 #ifdef UE_BUILD_DEBUG
 
@@ -103,6 +111,7 @@ void AMotherRabbit::BeginPlay()
 	}
 
 	CurrentLevel = GetWorld();
+	SetInteractWidgetVisibility(false);
 }
 
 // Called every frame
@@ -121,6 +130,7 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// Use CastChecked so when casting fails, crash the game
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked< UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		// UI
 		EnhancedInputComponent->BindAction(EnterAction, ETriggerEvent::Started, this, &AMotherRabbit::EnterInput);
 		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Canceled, this, &AMotherRabbit::BackInput);
 		EnhancedInputComponent->BindAction(BackAction, ETriggerEvent::Triggered, this, &AMotherRabbit::CloseInput);
@@ -128,9 +138,15 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(PageNavAction, ETriggerEvent::Started, this, &AMotherRabbit::PageNavigation);
 		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &AMotherRabbit::PauseGame);
 
+		// Movement
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Movement);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMotherRabbit::Jumping);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMotherRabbit::Look);
+
+		// Actions
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AMotherRabbit::Interact);
+		EnhancedInputComponent->BindAction(FishingAction, ETriggerEvent::Triggered, this, &AMotherRabbit::ControlFishingRod);
+		EnhancedInputComponent->BindAction(FishingAction, ETriggerEvent::Completed, this, &AMotherRabbit::ControlFishingRod);
 	}
 }
 
@@ -213,6 +229,26 @@ void AMotherRabbit::PageNavigation(const FInputActionValue& Value)
 	{
 		PrintScreen(false, 10.0f, FColor::Purple, "Current Page Navigation (Action Value) = %f", ActionValue);
 		OnPressingPageNavigationAction.Broadcast(ActionValue);
+	}
+}
+
+void AMotherRabbit::Interact(const FInputActionValue& Value)
+{
+	const bool ActionValue = Value.Get<bool>();
+
+	if (Controller && ActionValue)
+	{
+		OnInteractAction.Broadcast();
+	}
+}
+
+void AMotherRabbit::ControlFishingRod(const FInputActionValue& Value)
+{
+	const float ActionValue = Value.Get<float>();
+
+	if (Controller)
+	{
+		OnActivatingFishingAction.Broadcast(ActionValue);
 	}
 }
 
@@ -311,14 +347,16 @@ void AMotherRabbit::WallRunning(float DeltaTime)
 		FVector RightEndPoint = CurrentActorLocation + RightVectorEndPoint;
 		CurrentLevel->LineTraceSingleByChannel(RightHitResult, CurrentActorLocation, RightEndPoint, ECollisionChannel::ECC_Visibility, QueryParams);
 
-		DrawDebugLine(CurrentLevel, CurrentActorLocation, RightEndPoint, RightHitResult.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 2.0f);
+		if(bDrawWallRunningDebug)
+			DrawDebugLine(CurrentLevel, CurrentActorLocation, RightEndPoint, RightHitResult.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 2.0f);
 
 		// Left ray cast
 		FVector LeftVectorEndPoint = LeftVector / VectorEndPoint;
 		FVector LeftEndPoint = CurrentActorLocation + LeftVectorEndPoint;
 		CurrentLevel->LineTraceSingleByChannel(LeftHitResult, CurrentActorLocation, LeftEndPoint, ECollisionChannel::ECC_Visibility, QueryParams);
 
-		DrawDebugLine(CurrentLevel, CurrentActorLocation, LeftEndPoint, LeftHitResult.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 2.0f);
+		if(bDrawWallRunningDebug)
+			DrawDebugLine(CurrentLevel, CurrentActorLocation, LeftEndPoint, LeftHitResult.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 2.0f);
 
 		if ((LeftHitResult.bBlockingHit || RightHitResult.bBlockingHit) && GetCharacterMovement()->IsFalling() && (bStopWallRunning == false))
 		{

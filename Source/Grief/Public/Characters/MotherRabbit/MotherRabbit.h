@@ -5,13 +5,17 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Components/WidgetComponent.h"
+#include "Camera/CameraComponent.h"
 #include "MotherRabbit.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPressingNavigationAction, float, ActionValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPressingPageNavigationAction, float, ActionValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActivatingFishingAction, float, ActionValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingEnterAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingBackAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingClosingAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractAction);
 
 USTRUCT(BlueprintType)
 struct FPlayerItemStruct
@@ -44,6 +48,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
 	class UInputMappingContext* UserInterfaceMappingContext;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
+	class UInputMappingContext* FishingMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
+	class UInputMappingContext* BoatMappingContext;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 	class UInputAction* MovementAction;
 
@@ -68,6 +78,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|UserInterface")
 	class UInputAction* PageNavAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Actions")
+	class UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Actions")
+	class UInputAction* FishingAction;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingNavigationAction OnPressingNavigationAction;
 
@@ -82,6 +98,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingClosingAction OnPressingClosingAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnActivatingFishingAction OnActivatingFishingAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnInteractAction OnInteractAction;
 
 	/*
 	* BookOpenning (UI)
@@ -137,6 +159,22 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
 	TArray<FPlayerItemStruct> PlayerItem;
+
+	/*
+	* Pop-ups UI
+	*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay|InteractiveUI")
+	class UWidgetComponent* InteractWidget;
+
+	/*
+	* Custom Gameplay Events
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	bool bCanStartFishingMechanics;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	AActor* CurrentInteractNPC;
 
 protected:
 	// Called when the game starts or when spawned
@@ -207,6 +245,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
 	float InitialWallRunVelocity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|WallRunningMechanics")
+	bool bDrawWallRunningDebug;
+
 	bool bIsWallRunning;
 	bool bStopWallRunning;
 	bool bFirstContact;
@@ -227,6 +268,10 @@ protected:
 	void Movement(const FInputActionValue& Value);
 	void Jumping(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+
+	// Input Action - Action
+	void Interact(const FInputActionValue& Value);
+	void ControlFishingRod(const FInputActionValue& Value);
 
 	/*
 	* Game Logic
@@ -251,4 +296,7 @@ public:
 
 	FORCEINLINE void SetCollectedCoins(int32 Coins) { CollectedCoins = Coins; }
 	FORCEINLINE int32 GetCollectedCoins() { return CollectedCoins; }
+	FORCEINLINE void SetInteractWidgetVisibility(bool bEnable) { InteractWidget->SetHiddenInGame(!bEnable); }
+	FORCEINLINE void SetPlayerCameraTransform(FTransform CurrentTransform) { Camera->SetWorldTransform(CurrentTransform); }
+	FORCEINLINE FTransform GetPlayerCameraTransform() { return Camera->GetComponentTransform(); }
 };
