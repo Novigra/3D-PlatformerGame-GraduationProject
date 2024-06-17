@@ -23,7 +23,9 @@ void UMainMenuUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AMotherRabbit* Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>())
+	Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>();
+
+	if (Player)
 	{
 		PrintScreen(false, 10.0f, FColor::Blue, "Got The Player!!!");
 
@@ -78,6 +80,16 @@ void UMainMenuUI::NewGame()
 	PrintScreen(false, 15.0f, FColor::Green, "New Game Function Is Working!!!");
 
 	OnCloseAction.Broadcast();
+	Player->RemovePlayerAllMappingContexts();
+	Player->SetPlayerMappingContext(Player->MovementMappingContext, 0);
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(Player->GetController()))
+	{
+		UUserWidget* Widget = CreateWidget<UUserWidget>(PlayerController, StartingPointScene);
+		Widget->AddToViewport();
+	}
+
+	RemoveFromParent();
 }
 
 void UMainMenuUI::LoadGame()

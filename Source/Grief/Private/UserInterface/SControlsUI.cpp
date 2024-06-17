@@ -251,7 +251,8 @@ void USControlsUI::CloseChildUI()
 {
 	if (CurrentChildUI)
 	{
-		CurrentChildUI->RemoveFromViewport();
+		//CurrentChildUI->RemoveFromViewport();
+		CurrentChildUI->RemoveFromParent();
 		CurrentChildUI = nullptr;
 	}
 }

@@ -34,6 +34,40 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	float CameraTransitionSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TSubclassOf<class UUserWidget> DialogueMenuUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DialogueDetails")
+	FText NPCName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DialogueDetails")
+	TArray<FText> NameHeader;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DialogueDetails")
+	TMap<int32, FText> Dialogue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DialogueDetails")
+	int32 DialogueIndex;
+
+	// Decide who starts the conversation between the player and the NPC
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DialogueDetails")
+	bool bStartConversation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	bool bCanInteract;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|ObjectiveDetails")
+	int32 CurrentLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|ObjectiveDetails")
+	FText CurrentObjective;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|ObjectiveDetails")
+	float ObjectiveTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|ObjectiveDetails")
+	bool bIsObjectiveComplete;
+
 	// Called when the game starts or when spa.wned
 	virtual void BeginPlay() override;
 
@@ -53,4 +87,30 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void OnFinishDialogue();
+
+	UFUNCTION(BlueprintCallable)
+	void OnFinishObjective();
+
+	FORCEINLINE bool GetStartConversation() { return bStartConversation; }
+	FORCEINLINE FText GetNPCName() { return NPCName; }
+	/*
+	* Used for the dialogue menu where the player interacts with the NPC.
+	* @param Index: Indicates which line should be shown
+	* @param bIsPlayer: indicates who is the speaker. The player or the NPC?
+	*/
+	//FORCEINLINE FText GetDialogue(int32 Index, bool bIsPlayer) { return bIsPlayer ? *PlayerDialogue.Find(Index) : *NPCDialogue.Find(Index); }
+	FORCEINLINE void SetDialogueIndex(int32 Index) { DialogueIndex = Index; }
+	FORCEINLINE int32 GetDialogueIndex() { return DialogueIndex; }
+	FORCEINLINE FText GetDialogue(int32 Index) { return *Dialogue.Find(Index); }
+	FORCEINLINE FText GetNameHeader(int32 Index) { return NameHeader[Index]; }
+	FORCEINLINE bool SetNPCInteractionAvailability(bool bEnable) { return bCanInteract = bEnable; }
+	FORCEINLINE void SetCameraSceneState(bool bEnable) { bStartCameraTransition = bEnable; }
+	FORCEINLINE void SetCameraToOriginalState(bool bEnable) { bStartReverseCameraTransition = bEnable; }
+	FORCEINLINE int32 GetNPCCurrentLevel() { return CurrentLevel; }
+	FORCEINLINE FText GetCurrentObjective() { return CurrentObjective; }
+	FORCEINLINE float GetObjectiveTimer() { return ObjectiveTimer; }
+	FORCEINLINE void SetObjectiveComplete(bool Value) { bIsObjectiveComplete = Value; }
+	FORCEINLINE bool GetObjectiveComplete() { return bIsObjectiveComplete; }
 };

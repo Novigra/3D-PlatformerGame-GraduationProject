@@ -56,7 +56,7 @@ void AFish::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		if (Player)
 		{
 			PrintScreen(true, 2.0f, FColor::Green, "Actor %s Entered the collision", *Player->GetFName().ToString());
-			Player->CurrentInteractNPC = this;
+			Player->ObjectiveActor = this;
 			Player->SetInteractWidgetVisibility(true);
 			Player->OnInteractAction.AddDynamic(this, &AFish::StartFishingMinigame);
 		}
@@ -68,7 +68,7 @@ void AFish::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Other
 	if (Player)
 	{
 		PrintScreen(true, 2.0f, FColor::Green, "Actor %s Exited the collision", *Player->GetFName().ToString());
-		Player->CurrentInteractNPC = nullptr;
+		Player->ObjectiveActor = nullptr;
 		Player->SetInteractWidgetVisibility(false);
 		Player->OnInteractAction.RemoveAll(this);
 	}

@@ -16,6 +16,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingEnterAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingBackAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPressingClosingAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnProceedAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCatchAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDestroyAction);
 
 USTRUCT(BlueprintType)
 struct FPlayerItemStruct
@@ -54,6 +57,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
 	class UInputMappingContext* BoatMappingContext;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
+	class UInputMappingContext* DialogueMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|InputMappingContext")
+	class UInputMappingContext* CatchActorMappingContext;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement")
 	class UInputAction* MovementAction;
 
@@ -84,6 +93,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Actions")
 	class UInputAction* FishingAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Actions")
+	class UInputAction* ProceedAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Actions")
+	class UInputAction* CatchAction;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnPressingNavigationAction OnPressingNavigationAction;
 
@@ -104,6 +119,15 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractAction OnInteractAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnProceedAction OnProceedAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCatchAction OnCatchAction;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDestroyAction OnDestroyAction;
 
 	/*
 	* BookOpenning (UI)
@@ -149,16 +173,32 @@ public:
 	*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
-	int32 CollectedMaps;
+	TArray<bool> CollectedMaps;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
-	int32 CollectedKeys;
+	TArray<bool> CollectedKeys;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
 	int32 CollectedCoins;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Inventory")
 	TArray<FPlayerItemStruct> PlayerItem;
+
+	/*
+	* Player Details
+	*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Details")
+	FText PlayerName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Details")
+	int32 NumberOfLives;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|UserInterface")
+	TSubclassOf<class UUserWidget> GameplayHUD;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay|UserInterface")
+	class UGameplayHUDUI* GameplayHUDWidget;
 
 	/*
 	* Pop-ups UI
@@ -176,9 +216,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
 	AActor* CurrentInteractNPC;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	AActor* ObjectiveActor;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// StartingPoint
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|UserInterface")
+	TSubclassOf<class UUserWidget> MainMenuUI;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay|UserInterface")
+	class UMainMenuUI* MainWidget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Placeholder)
 	class UStaticMeshComponent* PlaceholderStaticMesh;
@@ -193,6 +243,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Camera")
+	FTransform CameraGameplayTransform;
 
 	// Gameplay Functionalities
 
@@ -272,6 +325,8 @@ protected:
 	// Input Action - Action
 	void Interact(const FInputActionValue& Value);
 	void ControlFishingRod(const FInputActionValue& Value);
+	void ProceedDialogue(const FInputActionValue& Value);
+	void Catch(const FInputActionValue& Value);
 
 	/*
 	* Game Logic
@@ -299,4 +354,7 @@ public:
 	FORCEINLINE void SetInteractWidgetVisibility(bool bEnable) { InteractWidget->SetHiddenInGame(!bEnable); }
 	FORCEINLINE void SetPlayerCameraTransform(FTransform CurrentTransform) { Camera->SetWorldTransform(CurrentTransform); }
 	FORCEINLINE FTransform GetPlayerCameraTransform() { return Camera->GetComponentTransform(); }
+	FORCEINLINE FTransform GetPlayerOriginalCameraTransform() { return CameraGameplayTransform; }
+	FORCEINLINE AActor* GetCurrentNPC() { return CurrentInteractNPC; }
+	FORCEINLINE FText GetPlayerName() { return PlayerName; }
 };

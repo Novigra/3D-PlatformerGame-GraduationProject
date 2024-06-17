@@ -37,7 +37,8 @@ void UMapsMenuUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AMotherRabbit* Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>())
+	Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>();
+	if (Player)
 	{
 		PrintScreen(false, 10.0f, FColor::Blue, "Got The Player!!!");
 
@@ -95,22 +96,26 @@ void UMapsMenuUI::Interact()
 
 void UMapsMenuUI::MapOne()
 {
-	OpenMap(MapOneUI);
+	if(Player->CollectedMaps[0])
+		OpenMap(MapOneUI);
 }
 
 void UMapsMenuUI::MapTwo()
 {
-	OpenMap(MapTwoUI);
+	if(Player->CollectedMaps[1])
+		OpenMap(MapTwoUI);
 }
 
 void UMapsMenuUI::MapThree()
 {
-	OpenMap(MapThreeUI);
+	if(Player->CollectedMaps[2])
+		OpenMap(MapThreeUI);
 }
 
 void UMapsMenuUI::MapFour()
 {
-	OpenMap(MapFourUI);
+	if(Player->CollectedMaps[3])
+		OpenMap(MapFourUI);
 }
 
 void UMapsMenuUI::OpenMap(TSubclassOf<class UUserWidget> Map)
@@ -132,7 +137,8 @@ void UMapsMenuUI::CloseChildUI()
 {
 	if (CurrentMapUI)
 	{
-		CurrentMapUI->RemoveFromViewport();
+		//CurrentMapUI->RemoveFromViewport();
+		CurrentMapUI->RemoveFromParent();
 		CurrentMapUI = nullptr;
 		PlayerController->NumberOfOpenChildren--;
 

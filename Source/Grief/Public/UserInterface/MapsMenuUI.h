@@ -87,6 +87,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MapsHUD")
 	TSubclassOf<class UUserWidget> MapFourUI;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	class AMotherRabbit* Player;
+
 	UPROPERTY()
 	class AMyPlayerController* PlayerController;
 

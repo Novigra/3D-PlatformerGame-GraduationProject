@@ -52,8 +52,8 @@ void AMyPlayerController::CloseHUDOverlay()
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("Closing Widget %s ..."), *CurrentHUD->GetClass()->GetName()));
 
 	CurrentHUD->RemoveFromRoot();
-	//CurrentHUD->RemoveFromParent();
-	CurrentHUD->RemoveFromViewport();
+	CurrentHUD->RemoveFromParent();
+	//CurrentHUD->RemoveFromViewport();
 
 	MyPlayer->RemovePlayerAllMappingContexts();
 	MyPlayer->SetPlayerMappingContext(MyPlayer->MovementMappingContext, 0);

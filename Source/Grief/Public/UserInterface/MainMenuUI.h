@@ -35,6 +35,12 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	int32 BtnArrIndex;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay")
+	class AMotherRabbit* Player;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TSubclassOf<class UUserWidget> StartingPointScene;
+
 	// Store previous BtnArrIndex
 	int32 Temp;
 

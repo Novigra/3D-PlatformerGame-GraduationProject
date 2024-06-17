@@ -23,6 +23,9 @@ ANPC::ANPC()
 	SphereCollision->OnComponentEndOverlap.AddDynamic(this, &ANPC::OnOverlapEnd);
 
 	bStartCameraTransition = false;
+	bStartReverseCameraTransition = false;
+	bCanInteract = true;
+	bIsObjectiveComplete = false;
 	CameraTransitionSpeed = 2.0f;
 }
 
@@ -46,7 +49,7 @@ void ANPC::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	if (OtherActor)
 	{
 		Player = Cast<AMotherRabbit>(OtherActor);
-		if (Player)
+		if (Player && bCanInteract)
 		{
 			PrintScreen(true, 2.0f, FColor::Green, "Actor %s Entered the collision", *Player->GetFName().ToString());
 			Player->CurrentInteractNPC = this;
@@ -61,15 +64,28 @@ void ANPC::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 	if (Player)
 	{
 		PrintScreen(true, 2.0f, FColor::Green, "Actor %s Exited the collision", *Player->GetFName().ToString());
-		Player->CurrentInteractNPC = nullptr;
+		//Player->CurrentInteractNPC = nullptr;
 		Player->SetInteractWidgetVisibility(false);
-		//Player->OnInteractAction.RemoveAll(this);
+		Player->OnInteractAction.RemoveAll(this);
 	}
 }
 
 void ANPC::StartDialogue()
 {
 	bStartCameraTransition = true;
+	Player->CurrentInteractNPC = this;
+
+	Player->RemovePlayerAllMappingContexts();
+	Player->SetPlayerMappingContext(Player->DialogueMappingContext, 0);
+
+	APlayerController* PlayerController = Cast<APlayerController>(Player->GetController());
+	if (PlayerController)
+	{
+		UUserWidget* Widget = CreateWidget<UUserWidget>(PlayerController, DialogueMenuUI);
+		Widget->AddToViewport();
+	}
+
+	Player->SetInteractWidgetVisibility(false);
 }
 
 void ANPC::CameraTransition(float DeltaTime)
@@ -80,8 +96,26 @@ void ANPC::CameraTransition(float DeltaTime)
 		FTransform CameraPlacement = DialogueCameraPlacementArrow->GetComponentTransform();
 
 		FVector CurrentCameraLocation = FMath::VInterpTo(PlayerCamera.GetLocation(), CameraPlacement.GetLocation(), DeltaTime, CameraTransitionSpeed);
-		// TO DO: Calculate the rotation of CurrentCamera and then add it to transform, then set it to the player camera
-		// Don't forget that you have the initiate state, then the original state
-		// Also don't forget to save the original location and rotation (transform, also there's scale but it will always be the same) of the player camera for the original state
+		FQuat CurrentCameraRotation = FMath::QInterpTo(PlayerCamera.GetRotation(), CameraPlacement.GetRotation(), DeltaTime, CameraTransitionSpeed);
+
+		FTransform Transition;
+		Transition.SetLocation(CurrentCameraLocation);
+		Transition.SetRotation(CurrentCameraRotation);
+		Transition.SetScale3D(FVector(1.0f));
+
+		Player->SetPlayerCameraTransform(Transition);
+
+		PrintScreen(false, 2.0f, FColor::Green, "CurrentCameraLocation = %f X : %f Y : %f Z", CurrentCameraLocation.X, CurrentCameraLocation.Y, CurrentCameraLocation.Y);
 	}
+}
+
+void ANPC::OnFinishDialogue()
+{
+	Player->OnInteractAction.RemoveDynamic(this, &ANPC::StartDialogue);
+}
+
+void ANPC::OnFinishObjective()
+{
+	bCanInteract = true;
+	PrintScreen(false, 5.0f, FColor::Green, "Will add NPC interact delegate");
 }

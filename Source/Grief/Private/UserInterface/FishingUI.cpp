@@ -6,7 +6,9 @@
 #include "Components/Slider.h"
 #include "Components/TextBlock.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Characters/NPC/NPC.h"
 #include "Kismet/GameplayStatics.h"
+#include "UserInterface/GameplayHUDUI.h"
 #include "Debug/Debug.h"
 
 UFishingUI::UFishingUI(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -159,9 +161,19 @@ void UFishingUI::CalculateTimer(float DeltaTime)
 				Widget->AddToViewport();
 			}
 
-			PlayerRef->CurrentInteractNPC->Destroy();
+			PlayerRef->ObjectiveActor->Destroy();
 			PlayerRef->RemovePlayerAllMappingContexts();
 			PlayerRef->SetPlayerMappingContext(PlayerRef->MovementMappingContext, 0);
+
+			if (ANPC* NPC = Cast<ANPC>(PlayerRef->CurrentInteractNPC))
+			{
+				NPC->OnFinishObjective();
+				NPC->SetObjectiveComplete(true);
+			}
+
+			UGameplayHUDUI* GameWidget = PlayerRef->GameplayHUDWidget;
+			GameWidget->OnFinishedObjective();
+
 			RemoveFromParent();
 		}
 	}

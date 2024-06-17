@@ -12,6 +12,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "UserInterface/FlyingBook.h"
+#include "UserInterface/MainMenuUI.h"
+#include "UserInterface/GameplayHUDUI.h"
 #include "Debug/Debug.h"
 
 
@@ -78,9 +80,10 @@ AMotherRabbit::AMotherRabbit()
 	bBookDestroyed = false;
 
 	// Inventory
-	CollectedMaps = 0;
-	CollectedKeys = 0;
 	CollectedCoins = 192;
+
+	// Player Details
+	NumberOfLives = 3;
 
 	// Custom gameplay related events
 	bCanStartFishingMechanics = false;
@@ -107,6 +110,17 @@ void AMotherRabbit::BeginPlay()
 		{
 			// Note: Player may or may not exist in the game, so managing controls will be moved to a player controller class later on!
 			Subsystem->AddMappingContext(UserInterfaceMappingContext, 0);
+
+			UUserWidget* Widget = CreateWidget<UUserWidget>(PlayerController, MainMenuUI);
+			MainWidget = Cast<UMainMenuUI>(Widget);
+
+			Widget = CreateWidget<UUserWidget>(PlayerController, GameplayHUD);
+			GameplayHUDWidget = Cast<UGameplayHUDUI>(Widget);
+			if (MainWidget && GameplayHUDWidget)
+			{
+				GameplayHUDWidget->AddToViewport();
+				MainWidget->AddToViewport();
+			}
 		}
 	}
 
@@ -147,6 +161,8 @@ void AMotherRabbit::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AMotherRabbit::Interact);
 		EnhancedInputComponent->BindAction(FishingAction, ETriggerEvent::Triggered, this, &AMotherRabbit::ControlFishingRod);
 		EnhancedInputComponent->BindAction(FishingAction, ETriggerEvent::Completed, this, &AMotherRabbit::ControlFishingRod);
+		EnhancedInputComponent->BindAction(ProceedAction, ETriggerEvent::Started, this, &AMotherRabbit::ProceedDialogue);
+		EnhancedInputComponent->BindAction(CatchAction, ETriggerEvent::Started, this, &AMotherRabbit::Catch);
 	}
 }
 
@@ -235,6 +251,7 @@ void AMotherRabbit::PageNavigation(const FInputActionValue& Value)
 void AMotherRabbit::Interact(const FInputActionValue& Value)
 {
 	const bool ActionValue = Value.Get<bool>();
+	CameraGameplayTransform = GetPlayerCameraTransform();
 
 	if (Controller && ActionValue)
 	{
@@ -249,6 +266,26 @@ void AMotherRabbit::ControlFishingRod(const FInputActionValue& Value)
 	if (Controller)
 	{
 		OnActivatingFishingAction.Broadcast(ActionValue);
+	}
+}
+
+void AMotherRabbit::ProceedDialogue(const FInputActionValue& Value)
+{
+	const bool ActionValue = Value.Get<bool>();
+
+	if (Controller && ActionValue)
+	{
+		OnProceedAction.Broadcast();
+	}
+}
+
+void AMotherRabbit::Catch(const FInputActionValue& Value)
+{
+	const bool ActionValue = Value.Get<bool>();
+
+	if (Controller && ActionValue)
+	{
+		OnCatchAction.Broadcast();
 	}
 }
 
