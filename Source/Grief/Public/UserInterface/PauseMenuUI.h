@@ -75,6 +75,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
 	bool bChildHudOpen;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UUserWidget> LoadingScreenUI;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenus")
 	class UUserWidget* CurrentChildUI;
 
@@ -89,6 +92,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|ChildMenus")
 	TSubclassOf<class UUserWidget> ReturnMenuUI;
+
+	UPROPERTY()
+	class AMotherRabbit* Player;
 
 	class AMyPlayerController* PlayerController;
 

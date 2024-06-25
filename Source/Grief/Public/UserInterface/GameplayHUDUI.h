@@ -41,6 +41,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	float TimerRate;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TSubclassOf<class UUserWidget> FailureUI;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Gameplay|Characters")
 	class AMotherRabbit* Player;
 

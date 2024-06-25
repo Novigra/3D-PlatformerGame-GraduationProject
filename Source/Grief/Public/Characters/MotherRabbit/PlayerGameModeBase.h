@@ -6,6 +6,10 @@
 #include "GameFramework/GameModeBase.h"
 #include "PlayerGameModeBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDestroyActors);
+
+class USaveLocalPlayerGame;
+
 UCLASS()
 class GRIEF_API APlayerGameModeBase : public AGameModeBase
 {
@@ -15,11 +19,25 @@ public:
 	APlayerGameModeBase();
 
 	UPROPERTY()
-	class APlayerGameModeBase* CurrentGameModeBase;
+	class AMotherRabbit* Player;
+
+	/*
+	* Save every data
+	* @param SaveDataType : Choose whether you save the data synchronously (0) or asynchronously (1)
+	*/
+	UFUNCTION(BlueprintCallable)
+	void SaveAllPlayerData(int32 SaveDataType);
+	void LoadAllPlayerData();
+	void TestCalling();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDestroyActors OnDestroyActors;
 
 protected:
 	virtual void BeginPlay() override;
 
-public:
-	FORCEINLINE APlayerGameModeBase* GetCurrentGameMode() { return CurrentGameModeBase; }
+	USaveLocalPlayerGame* GetSaveGame();
+
+	void LoadData(const FString& SaveSlotName, const int32 UserIndex, class USaveGame* LoadGame);
+	void SaveResult(const FString& SaveSlotName, const int32 UserIndex, bool bSuccess);
 };

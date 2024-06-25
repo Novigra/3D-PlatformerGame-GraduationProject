@@ -18,6 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ChildProperties")
 	class UBoxComponent* BoxCollision;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
+	class ANPC* AssociatedNPC;
+
 	UPROPERTY()
 	class AMotherRabbit* Player;
 
@@ -33,6 +36,9 @@ protected:
 
 	UFUNCTION()
 	void DestroyActor();
+
+	UFUNCTION()
+	void DestroySubActor();
 
 public:	
 	// Called every frame

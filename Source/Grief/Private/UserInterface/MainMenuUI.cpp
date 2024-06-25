@@ -5,6 +5,9 @@
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Characters/MotherRabbit/PlayerGameModeBase.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Data/SaveLocalPlayerGame.h"
 #include "Debug/Debug.h"
 
 
@@ -95,13 +98,27 @@ void UMainMenuUI::NewGame()
 void UMainMenuUI::LoadGame()
 {
 	PrintScreen(false, 15.0f, FColor::Red, "Load Game Function Is Working!!!");
+
+	APlayerGameModeBase* GameMode = Player->GetPlayerGameMode();
+	if (GameMode)
+	{
+		GameMode->LoadAllPlayerData();
+	}
+
+	Player->RemovePlayerAllMappingContexts();
+	Player->SetPlayerMappingContext(Player->MovementMappingContext, 0);
+
+	RemoveFromParent();
 }
 
 void UMainMenuUI::ExitGame()
 {
 	PrintScreen(false, 15.0f, FColor::Yellow, "Exit Game Function Is Working!!!");
 
-	FWindowsPlatformMisc::RequestExit(false);
+	if (APlayerController* PlayerController = Cast<APlayerController>(Player->GetController()))
+	{
+		UKismetSystemLibrary::QuitGame(Player->GetPlayerWorld(), PlayerController, EQuitPreference::Quit, true);
+	}
 }
 
 void UMainMenuUI::NavigateToNextButton(float ActionValue)

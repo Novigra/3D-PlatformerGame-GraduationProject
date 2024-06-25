@@ -6,7 +6,9 @@
 #include "Components/Overlay.h"
 #include "Components/HorizontalBox.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Characters/MotherRabbit/PlayerGameModeBase.h"
 #include "Characters/MotherRabbit/MyPlayerController.h"
 #include "Debug/Debug.h"
 
@@ -39,7 +41,8 @@ void UPauseMenuUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AMotherRabbit* Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>())
+	Player = UGameplayStatics::GetPlayerController(this, 0)->GetPawn<AMotherRabbit>();
+	if (Player)
 	{
 		PrintScreen(false, 10.0f, FColor::Blue, "Got The Player!!!");
 
@@ -126,6 +129,18 @@ void UPauseMenuUI::Continue()
 void UPauseMenuUI::Load()
 {
 	PrintScreen(false, 15.0f, FColor::Green, "Load Function Is Working!!!");
+
+	if (PlayerController)
+	{
+		UUserWidget* Widget = CreateWidget<UUserWidget>(PlayerController, LoadingScreenUI);
+		Widget->AddToViewport();
+
+		APlayerGameModeBase* GameMode = Player->GetPlayerGameMode();
+		if (GameMode)
+		{
+			GameMode->LoadAllPlayerData();
+		}
+	}
 }
 
 void UPauseMenuUI::Maps()
@@ -160,6 +175,13 @@ void UPauseMenuUI::Return()
 void UPauseMenuUI::Quit()
 {
 	PrintScreen(false, 15.0f, FColor::Green, "Quit Function Is Working!!!");
+
+	APlayerGameModeBase* GameMode = Player->GetPlayerGameMode();
+	if (GameMode)
+	{
+		GameMode->SaveAllPlayerData(0);
+		UKismetSystemLibrary::QuitGame(Player->GetPlayerWorld(), PlayerController, EQuitPreference::Quit, true);
+	}
 }
 
 void UPauseMenuUI::OpenChildUI(TSubclassOf<class UUserWidget> Widget)

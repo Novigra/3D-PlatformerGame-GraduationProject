@@ -4,6 +4,7 @@
 #include "UserInterface/DialogueMenuUI.h"
 #include "UserInterface/GameplayHUDUI.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Characters/MotherRabbit/PlayerGameModeBase.h"
 #include "Characters/NPC/NPC.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/TextBlock.h"
@@ -75,6 +76,12 @@ void UDialogueMenuUI::NextDialogueText()
 		else
 		{
 			Player->CollectedKeys[Level] = true;
+		}
+
+		APlayerGameModeBase* GameMode = Player->GetPlayerGameMode();
+		if (GameMode)
+		{
+			GameMode->SaveAllPlayerData(1);
 		}
 
 		RemoveFromParent();

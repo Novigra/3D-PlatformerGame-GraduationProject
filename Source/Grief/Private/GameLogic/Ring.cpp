@@ -6,6 +6,7 @@
 #include "Characters/NPC/NPC.h"
 #include "UserInterface/GameplayHUDUI.h"
 #include "Components/SphereComponent.h"
+#include "Debug/Debug.h"
 
 // Sets default values
 ARing::ARing()
@@ -38,6 +39,8 @@ void ARing::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FRotator ActorCurrentRotation = GetActorRotation();
+	SetActorRotation(FRotator(ActorCurrentRotation.Pitch, ActorCurrentRotation.Yaw + (DeltaTime * RotationSpeed), ActorCurrentRotation.Roll));
 }
 
 void ARing::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -47,26 +50,39 @@ void ARing::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		Player = Cast<AMotherRabbit>(OtherActor);
 		if (Player)
 		{
-			APlayerController* PlayerController = Cast<APlayerController>(Player->GetController());
-			if (PlayerController)
-			{
-				UUserWidget* Widget = CreateWidget<UUserWidget>(PlayerController, RingMessageUI);
-				Widget->AddToViewport();
-			}
-
-			if (ANPC* NPC = Cast<ANPC>(Player->CurrentInteractNPC))
-			{
-				NPC->OnFinishObjective();
-				NPC->SetObjectiveComplete(true);
-			}
-
-			UGameplayHUDUI* GameWidget = Player->GameplayHUDWidget;
-			GameWidget->OnFinishedObjective();
+			Player->SetInteractWidgetVisibility(true);
+			Player->OnInteractAction.AddDynamic(this, &ARing::CollectRing);
+			PrintScreen(false, 2.0f, FColor::Green, "Testing...");
 		}
 	}
 }
 
 void ARing::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (Player)
+	{
+		Player->SetInteractWidgetVisibility(false);
+		Player->OnInteractAction.RemoveDynamic(this, &ARing::CollectRing);
+	}
+}
 
+void ARing::CollectRing()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(Player->GetController());
+	if (PlayerController)
+	{
+		UUserWidget* Widget = CreateWidget<UUserWidget>(PlayerController, RingMessageUI);
+		Widget->AddToViewport();
+	}
+
+	if (ANPC* NPC = Cast<ANPC>(Player->CurrentInteractNPC))
+	{
+		NPC->OnFinishObjective();
+		NPC->SetObjectiveComplete(true);
+	}
+
+	UGameplayHUDUI* GameWidget = Player->GameplayHUDWidget;
+	GameWidget->OnFinishedObjective();
+
+	Destroy();
 }

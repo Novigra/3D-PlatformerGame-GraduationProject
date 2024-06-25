@@ -4,7 +4,10 @@
 #include "GameLogic/CatchActorSite.h"
 #include "Components/BoxComponent.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Characters/MotherRabbit/PlayerGameModeBase.h"
+#include "Characters/NPC/NPC.h"
 #include "UserInterface/GameplayHUDUI.h"
+#include "Kismet/GameplayStatics.h"
 #include "Debug/Debug.h"
 
 // Sets default values
@@ -18,14 +21,18 @@ ACatchActorSite::ACatchActorSite()
 
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ACatchActorSite::OnOverlapBegin);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ACatchActorSite::OnOverlapEnd);
-
 }
 
 // Called when the game starts or when spawned
 void ACatchActorSite::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	APlayerGameModeBase* GameMode = Cast<APlayerGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->OnDestroyActors.AddDynamic(this, &ACatchActorSite::DestroySubActor);
+	}
 }
 
 // Called every frame
@@ -68,4 +75,15 @@ void ACatchActorSite::DestroyActor()
 	}
 
 	Destroy();
+}
+
+void ACatchActorSite::DestroySubActor()
+{
+	if (AssociatedNPC)
+	{
+		if (!AssociatedNPC->GetSpawnSubActor())
+		{
+			Destroy();
+		}
+	}
 }

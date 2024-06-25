@@ -5,6 +5,8 @@
 #include "Characters/NPC/NPC.h"
 #include "Components/SphereComponent.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Characters/MotherRabbit/PlayerGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "Debug/Debug.h"
 
 // Sets default values
@@ -18,7 +20,6 @@ AChild::AChild()
 
 	SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &AChild::OnOverlapBegin);
 	SphereCollision->OnComponentEndOverlap.AddDynamic(this, &AChild::OnOverlapEnd);
-
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +27,11 @@ void AChild::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	APlayerGameModeBase* GameMode = Cast<APlayerGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->OnDestroyActors.AddDynamic(this, &AChild::DestroySubActor);
+	}
 }
 
 // Called every frame
@@ -73,9 +79,21 @@ void AChild::CatchActor()
 
 	if (ANPC* NPC = Cast<ANPC>(Player->CurrentInteractNPC))
 	{
+		NPC->SetSpawnSubActor(false);
 		NPC->OnFinishObjective();
 		NPC->SetObjectiveComplete(true);
 	}
 
 	Destroy();
+}
+
+void AChild::DestroySubActor()
+{
+	if (AssociatedNPC)
+	{
+		if (!AssociatedNPC->GetSpawnSubActor())
+		{
+			Destroy();
+		}
+	}
 }

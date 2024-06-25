@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/SphereComponent.h"
 #include "NPC.generated.h"
 
 UCLASS()
@@ -17,6 +18,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NPCProperties")
 	class USphereComponent* SphereCollision;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NPCProperties")
+	class USphereComponent* PlayerResetPlacement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NPCProperties")
 	class UArrowComponent* DialogueCameraPlacementArrow;
@@ -68,6 +72,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|ObjectiveDetails")
 	bool bIsObjectiveComplete;
 
+	// Decide whether to spawn or destroy any actor associated to the npc
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|ObjectiveDetails")
+	bool bSpawnSubActor;
+
 	// Called when the game starts or when spa.wned
 	virtual void BeginPlay() override;
 
@@ -84,6 +92,9 @@ protected:
 	void CameraTransition(float DeltaTime);
 
 public:	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|ObjectiveDetails")
+	int32 NumberOfCompletedSubObjectives;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -93,6 +104,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnFinishObjective();
 
+	FORCEINLINE void SetSpawnSubActor(bool bEnable) { bSpawnSubActor = bEnable; }
+	FORCEINLINE bool GetSpawnSubActor() { return bSpawnSubActor; }
+	FORCEINLINE void SetStartConversation(bool bEnable) { bStartConversation = bEnable; }
 	FORCEINLINE bool GetStartConversation() { return bStartConversation; }
 	FORCEINLINE FText GetNPCName() { return NPCName; }
 	/*
@@ -106,6 +120,7 @@ public:
 	FORCEINLINE FText GetDialogue(int32 Index) { return *Dialogue.Find(Index); }
 	FORCEINLINE FText GetNameHeader(int32 Index) { return NameHeader[Index]; }
 	FORCEINLINE bool SetNPCInteractionAvailability(bool bEnable) { return bCanInteract = bEnable; }
+	FORCEINLINE bool GetNPCInteractionAvailability() { return bCanInteract; }
 	FORCEINLINE void SetCameraSceneState(bool bEnable) { bStartCameraTransition = bEnable; }
 	FORCEINLINE void SetCameraToOriginalState(bool bEnable) { bStartReverseCameraTransition = bEnable; }
 	FORCEINLINE int32 GetNPCCurrentLevel() { return CurrentLevel; }
@@ -113,4 +128,5 @@ public:
 	FORCEINLINE float GetObjectiveTimer() { return ObjectiveTimer; }
 	FORCEINLINE void SetObjectiveComplete(bool Value) { bIsObjectiveComplete = Value; }
 	FORCEINLINE bool GetObjectiveComplete() { return bIsObjectiveComplete; }
+	FORCEINLINE FTransform GetPlayerResetPlacement() { return PlayerResetPlacement->GetComponentTransform(); }
 };

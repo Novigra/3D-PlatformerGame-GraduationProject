@@ -24,8 +24,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RingProperties")
 	class UStaticMeshComponent* Ring;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RingProperties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RingProperties")
 	TSubclassOf<class UUserWidget> RingMessageUI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RingProperties")
+	float RotationSpeed;
 
 	UPROPERTY()
 	class AMotherRabbit* Player;
@@ -39,6 +42,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void CollectRing();
 
 public:	
 	// Called every frame

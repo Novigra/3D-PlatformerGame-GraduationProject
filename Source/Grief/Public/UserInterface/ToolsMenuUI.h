@@ -92,4 +92,7 @@ protected:
 	void UpdatePlayerData();
 
 	void UpdateUI();
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnLoadingGameSuccessUIUpdate"))
+	void OnLoadingEvent();
 };

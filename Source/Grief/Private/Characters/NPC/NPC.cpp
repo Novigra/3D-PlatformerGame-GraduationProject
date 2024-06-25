@@ -3,7 +3,6 @@
 
 #include "Characters/NPC/NPC.h"
 #include "Characters/MotherRabbit/MotherRabbit.h"
-#include "Components/SphereComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Debug/Debug.h"
 
@@ -16,6 +15,9 @@ ANPC::ANPC()
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
 	SphereCollision->SetupAttachment(GetRootComponent());
 
+	PlayerResetPlacement = CreateDefaultSubobject<USphereComponent>(TEXT("PlayerResetPlacement"));
+	PlayerResetPlacement->SetupAttachment(GetRootComponent());
+
 	DialogueCameraPlacementArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DialogueCameraPlacementArrow"));
 	DialogueCameraPlacementArrow->SetupAttachment(GetRootComponent());
 
@@ -26,7 +28,9 @@ ANPC::ANPC()
 	bStartReverseCameraTransition = false;
 	bCanInteract = true;
 	bIsObjectiveComplete = false;
+	bSpawnSubActor = true;
 	CameraTransitionSpeed = 2.0f;
+	NumberOfCompletedSubObjectives = 0;
 }
 
 // Called when the game starts or when spawned

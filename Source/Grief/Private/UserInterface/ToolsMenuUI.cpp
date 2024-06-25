@@ -33,6 +33,16 @@ void UToolsMenuUI::NativeConstruct()
 
 	Btn->OnClicked.AddDynamic(this, &UToolsMenuUI::Purchase);
 	Btn->SetKeyboardFocus();
+
+	for (int32 i = 0; i < PlayerRef->PlayerItem.Num(); ++i)
+	{
+		Item[i].bOwnItem = PlayerRef->PlayerItem[i].bOwnItem;
+	}
+
+	if (Item[0].bOwnItem)
+	{
+		OnLoadingEvent();
+	}
 }
 
 void UToolsMenuUI::NavigateToNextButton(float ActionValue)

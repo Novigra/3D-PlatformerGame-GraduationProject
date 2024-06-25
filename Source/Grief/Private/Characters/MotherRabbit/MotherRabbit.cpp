@@ -2,6 +2,7 @@
 
 
 #include "Characters/MotherRabbit/MotherRabbit.h"
+#include "Characters/MotherRabbit/PlayerGameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -14,6 +15,7 @@
 #include "UserInterface/FlyingBook.h"
 #include "UserInterface/MainMenuUI.h"
 #include "UserInterface/GameplayHUDUI.h"
+#include "Characters/NPC/NPC.h"
 #include "Debug/Debug.h"
 
 
@@ -29,6 +31,10 @@ AMotherRabbit::AMotherRabbit()
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
 	InteractWidget->SetupAttachment(GetRootComponent());
 	InteractWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	PickedItemWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickedItemWidget"));
+	PickedItemWidget->SetupAttachment(GetRootComponent());
+	PickedItemWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	// Camera Properties
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -88,6 +94,12 @@ AMotherRabbit::AMotherRabbit()
 	// Custom gameplay related events
 	bCanStartFishingMechanics = false;
 	CurrentInteractNPC = nullptr;
+	bCanPlaceDish = false;
+	bCanCollect = true;
+	bCollectedBroom = false;
+	bCanSweepFloor = false;
+	NumberOfIngredients = 0;
+	NumberOfCookedDishes = 0;
 
 #ifdef UE_BUILD_DEBUG
 
@@ -125,6 +137,7 @@ void AMotherRabbit::BeginPlay()
 	}
 
 	CurrentLevel = GetWorld();
+	CurrentGameMode = Cast<APlayerGameModeBase>(UGameplayStatics::GetGameMode(CurrentLevel));
 	SetInteractWidgetVisibility(false);
 }
 
@@ -302,7 +315,10 @@ void AMotherRabbit::Movement(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection, MovementValue.Y);
 		
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(RightDirection, MovementValue.X);		
+		AddMovementInput(RightDirection, MovementValue.X);
+
+		if (bCollectedBroom)
+			SweepFloor();
 	}
 }
 
@@ -451,6 +467,32 @@ void AMotherRabbit::Look(const FInputActionValue& Value)
 	{
 		AddControllerYawInput(LookVector.X);
 		AddControllerPitchInput(LookVector.Y);
+	}
+}
+
+void AMotherRabbit::SweepFloor()
+{
+	if (bCanSweepFloor)
+	{
+		SweepProgress++;
+		if (SweepProgress >= MaxSweepProgress)
+		{
+			if (ANPC* NPC = Cast<ANPC>(CurrentInteractNPC))
+			{
+				NPC->NumberOfCompletedSubObjectives++;
+				if (NPC->NumberOfCompletedSubObjectives == 2)
+				{
+					NPC->OnFinishObjective();
+					NPC->SetObjectiveComplete(true);
+
+					UGameplayHUDUI* GameWidget = GameplayHUDWidget;
+					GameWidget->OnFinishedObjective();
+
+					OnFinishingSweepingAction.Broadcast();
+					bCanSweepFloor = false;
+				}
+			}
+		}
 	}
 }
 

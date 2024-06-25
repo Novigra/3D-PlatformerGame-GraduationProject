@@ -21,6 +21,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
 	TSubclassOf<class UUserWidget> CatchMessageUI;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
+	class ANPC* AssociatedNPC;
+
 	UPROPERTY()
 	class AMotherRabbit* Player;
 
@@ -36,6 +39,9 @@ protected:
 
 	UFUNCTION()
 	void CatchActor();
+
+	UFUNCTION()
+	void DestroySubActor();
 
 public:	
 	// Called every frame

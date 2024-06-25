@@ -19,6 +19,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnProceedAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCatchAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDestroyAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFinishingSweepingAction);
 
 USTRUCT(BlueprintType)
 struct FPlayerItemStruct
@@ -27,6 +28,9 @@ struct FPlayerItemStruct
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemDetails")
 	FString ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemDetails")
+	FString ItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemDetails")
 	bool bOwnItem;
@@ -129,6 +133,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDestroyAction OnDestroyAction;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnFinishingSweepingAction OnFinishingSweepingAction;
+
 	/*
 	* BookOpenning (UI)
 	*/
@@ -194,6 +201,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|Details")
 	int32 NumberOfLives;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay|Details")
+	float LastTimerNumber;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|UserInterface")
 	TSubclassOf<class UUserWidget> GameplayHUD;
 
@@ -207,6 +217,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay|InteractiveUI")
 	class UWidgetComponent* InteractWidget;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay|InteractiveUI")
+	class UWidgetComponent* PickedItemWidget;
+
 	/*
 	* Custom Gameplay Events
 	*/
@@ -218,6 +231,30 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
 	AActor* ObjectiveActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	bool bCanPlaceDish;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	int32 NumberOfCookedDishes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	int32 NumberOfIngredients;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	bool bCanCollect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	bool bCollectedBroom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	bool bCanSweepFloor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay|CustomGameplayEvents")
+	float SweepProgress;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|CustomGameplayEvents")
+	float MaxSweepProgress;
 
 protected:
 	// Called when the game starts or when spawned
@@ -235,6 +272,9 @@ protected:
 
 	UPROPERTY()
 	UWorld* CurrentLevel;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
+	class APlayerGameModeBase* CurrentGameMode;
 
 
 	// Camera Components
@@ -337,6 +377,7 @@ protected:
 	void ChangeJumpGravity();
 
 	void WallRunning(float DeltaTime);
+	void SweepFloor();
 
 public:	
 	// Called every frame
@@ -349,6 +390,9 @@ public:
 	void RemovePlayerMappingContext(class UInputMappingContext* InputMappingContext);
 	void RemovePlayerAllMappingContexts();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Player")
+	void OnPickingItemEvent();
+
 	FORCEINLINE void SetCollectedCoins(int32 Coins) { CollectedCoins = Coins; }
 	FORCEINLINE int32 GetCollectedCoins() { return CollectedCoins; }
 	FORCEINLINE void SetInteractWidgetVisibility(bool bEnable) { InteractWidget->SetHiddenInGame(!bEnable); }
@@ -357,4 +401,6 @@ public:
 	FORCEINLINE FTransform GetPlayerOriginalCameraTransform() { return CameraGameplayTransform; }
 	FORCEINLINE AActor* GetCurrentNPC() { return CurrentInteractNPC; }
 	FORCEINLINE FText GetPlayerName() { return PlayerName; }
+	FORCEINLINE UWorld* GetPlayerWorld() { return CurrentLevel; }
+	FORCEINLINE APlayerGameModeBase* GetPlayerGameMode() { return CurrentGameMode; }
 };
