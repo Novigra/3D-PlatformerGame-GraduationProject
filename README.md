@@ -17,10 +17,10 @@
     - [Section Four](#Section-Four)
     - [Section Five](#Section-Five)
   - [Items](#Items)
-  - User Interface
-    - Character Interaction &. Dialogue
-    - Free Roam
-    - Indication
+  - [User Interface](#UI)
+    - [Character Interaction &. Dialogue](#Character-Interaction-&.-Dialogue)
+    - [Free Roam](#Free-Roam)
+    - [Indication](#Indication)
     - Menu
     - Fishing
     - Cooking
@@ -210,4 +210,57 @@ In the fifth area, which is the final area. Once the player passes the gate, the
 
 <a name="Items"></a>
 ![Items](https://github.com/user-attachments/assets/1c968764-bd70-4f7d-8047-60cdfd6ea52d)
+
+Throughout the game, the player can collect coins to buy items to help them finish objectives that might be a bit challenging. Each item is objective-based.
+
+The game has 3 items:
+
+1. Jumping Boots: Help player to jump higher distance. At the beginning of the game, the player jumping count maximum number is equal to two. If the player buys the boots, then the jumping count maximum number will be three. This item would help the player in the third area, especially where there is so much platforming.
+
+![18-BootsItem](https://github.com/user-attachments/assets/6a9456a2-6964-4565-9bf4-931d9b8c975c)
+
+2. Fishing rod: as mentioned earlier in the second area, the player goes on a fishing mission. When the player starts fishing, a timer will start. The timer decreases at a specific rate, and if the player bought the fishing rod item, the rate would change and the timer would decrease much slower.
+
+![19-Fishingrod](https://github.com/user-attachments/assets/bf1618f3-db23-49d5-baeb-d531912ec926)
+
+3. Services tools: in the third area, the player has to finish two sub-objectives, cooking and cleaning. Both of them have timers, so like the fishing rod, it slows the rate of the timer.
+
+![20-ServicesTools](https://github.com/user-attachments/assets/9b72079c-dabc-4108-b32f-333e1356bb65)
+
+---
+
+<a name="UI"></a>
+![UI](https://github.com/user-attachments/assets/8ffa008c-87ff-4851-a69d-2e533fadab1c)
+
+The game follows a simplistic approach for the UI design and only shows information that matters. The user interface is not just there to make the game visually interesting but also used for information like how much time is left, whether the player picked the items, or how many items the player has.
+
+In the following sections, we will talk about what the UI design looks like in every aspect of the game.
+
+### Character Interaction &. Dialogue
+
+When the player approaches the NPC, a popup shows up to indicate that the player can interact with the NPC, and the player must be at a specific distance to be able to start the dialogue.
+
+![21-CharacterInteraction](https://github.com/user-attachments/assets/60310999-b035-429f-8e12-3858df22fa77)
+
+<div style="display: flex; justify-content: space-around;">
+  <img src="https://github.com/user-attachments/assets/3c751026-d2fe-40d3-b148-4446f18e3fba" alt="Image 1" width="330"/>
+  <img src="https://github.com/user-attachments/assets/49fbc866-8edf-46e6-8ba9-f82b1ad7c840" alt="Image 2" width="330"/>
+  <img src="https://github.com/user-attachments/assets/a40e8e0f-c7b4-4bcd-8d60-c3d3e33d9a79" alt="Image 3" width="330"/>
+</div>
+
+As this project was created by students who had 7 other projects to take care of, we didn’t have the capability to do a full cutscene, so we followed a famous approach used in other games like [hyperlink]Hollow Knight and [hyperlink]Persona, in which when the dialogue starts, the text shows up and the player can start reading. It is like the subtitles, but the player has the power to control the dialogue and proceed with their own pace.
+
+### Free Roam
+
+When the player walks around and doesn’t talk to the NPC, nothing gets shown, as mentioned earlier. We follow a simple design and only show information that matters, so when the player starts an objective, a timer shows up at the top of the screen.
+
+![23-Timer](https://github.com/user-attachments/assets/cb749f7b-8b3b-4e43-80b4-967556a5a5a9)
+
+### Indication
+
+When the player’s state changes, the game must show a message that something happened so the player can keep up with the game and don’t get confused or lost, e.g. the objective started or the player collected something.
+
+| Caught a Fish                      | Objective Started                        | Picked Item                       |
+|:-------------------------------------:|:------------------------------------:|:----------------------------------:|
+| ![24-CaughtFish](https://github.com/user-attachments/assets/854914a9-0dcf-4cca-a1cd-eb76a4e87aa7) | ![24-ObjectiveStarted](https://github.com/user-attachments/assets/aa2594d3-d0dd-4f16-995a-5b504c8f82e0) | ![24-PickedItem](https://github.com/user-attachments/assets/7e5a33a2-2a78-4e34-8a38-8eada17374a5) |
 
