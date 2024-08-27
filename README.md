@@ -6,7 +6,7 @@
 - [Important Note](#Important-Note)
 - [Introduction](#Introduction)
 - [Game Design](#Game-Design)
-  - Game Story
+  - [Game Story](#Game-Story)
   - Gameplay Loop
   - Character Movement &. Camera Placement
   - Level Design
@@ -54,3 +54,12 @@ The game is a 3D platformer game because 3D platformers mostly focus on movement
 
 <a name="Game-Design"></a>
 ![GameDesign](https://github.com/user-attachments/assets/88c74aa6-465f-43a5-90a4-8e87f65b2f78)
+
+The game was inspired by fromsoftware games world design where you start in an area and start exploring it, and when you want to go to the next area, you must finish the main objective, defeat a boss in Dark Souls, for example.
+
+Also, it is inspired by different 3D platformer games, famously the Mario franchise, in which you collect coins, jump around, run through the fields, and have mechanics like wall running.
+But before we delve into level design, character movement, gameplay loop and more. Let’s talk about the story of the game.
+<br></br>
+
+<a name="Game-Story"></a>
+![GameStory](https://github.com/user-attachments/assets/c16f026a-c61e-4e78-b27a-52fd8aebd3b7)
