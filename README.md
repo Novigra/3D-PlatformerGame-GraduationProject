@@ -7,8 +7,8 @@
 - [Introduction](#Introduction)
 - [Game Design](#Game-Design)
   - [Game Story](#Game-Story)
-  - Gameplay Loop
-  - Character Movement &. Camera Placement
+  - [Gameplay Loop](#Gameplay-Loop)
+  - [Character Movement &. Camera Placement](#CharMoveAndCamPlace)
   - Level Design
   - Objectives
     - Section One
@@ -63,3 +63,38 @@ But before we delve into level design, character movement, gameplay loop and mor
 
 <a name="Game-Story"></a>
 ![GameStory](https://github.com/user-attachments/assets/c16f026a-c61e-4e78-b27a-52fd8aebd3b7)
+
+The game story follows a character called Munda. She’s a mother who lost her child and is looking for.
+
+Throughout the game, she will meet different characters who are in trouble and need help. Munda will help them, and in return, they will help her find her child.
+<br></br>
+
+<a name="Gameplay-Loop"></a>
+![GameplayLoop](https://github.com/user-attachments/assets/99ad8377-f408-4c88-b683-e06a49834799)
+
+The game follows a basic game loop.
+![1-GameLoop](https://github.com/user-attachments/assets/658dfea3-6345-4ee1-b7f6-fbc3af378ae9)
+
+Important note: each area isn’t a level; instead, the areas are on one level, but each of them is separated by a gate.
+
+When you start exploring the area, you can collect coins and talk to a Non-Player Character (NPC) to give you the main objective to finish. After finishing talking to them, the NPC gives a map to help the player navigate the area.
+
+The game has difficulty, but to spice it up, the game has a timer that starts after talking to the NPC, and if it runs out, the player loses, and they need to start from the latest saved checkpoint.
+
+So the sequence of interaction between the player and the NPC goes like this:
+
+1. The player interacts with the NPC.
+
+2. Dialogue stars.
+
+3. Dialogue ends.
+
+4. The NPC gives a map to the player.
+
+5. Timer starts.
+
+If the player finishes the main objective, the timer stops, and the player must talk to the NPC to continue the dialogue, then the NPC gives a key to the player, and finally the player can pass the gate.
+<br></br>
+
+<a name="CharMoveAndCamPlace"></a>
+![CharMoveAndCamPlace](https://github.com/user-attachments/assets/1efd7a0a-9fb8-43b2-9d97-9f013c75e22b)
