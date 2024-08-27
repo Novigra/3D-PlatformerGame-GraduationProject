@@ -3,9 +3,9 @@
 
 # Content
 
-- [Important Note](Important-Note)
+- [Important Note](#Important-Note)
 - [Introduction](#Introduction)
-- Game Design
+- [Game Design](#Game-Design)
   - Game Story
   - Gameplay Loop
   - Character Movement &. Camera Placement
